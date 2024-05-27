@@ -122,7 +122,7 @@ module.add_class(m)
 ########################
 
 m = make_mesh( py_type = "MeshDLRImFreq", c_tag = "dlr_imfreq",
-        doc =  """Mesh of DLR imaginary times
+        doc =  """Mesh of DLR Matsubara frequencies
 
         The MeshPoint for a given linear_index `i` can be otained
         through `m[i]` and for an index `n` through `m(n)`
