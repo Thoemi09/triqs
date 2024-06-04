@@ -98,17 +98,17 @@ TEST(Gf, dlr_mat) {
   EXPECT_EQ(g1.mesh().mesh_hash(), g1b.mesh().mesh_hash());
 
   // compare dlr_imfreq against exact result
-  auto g3 = make_gf_dlr_imfreq(g2);
+  auto g3       = make_gf_dlr_imfreq(g2);
   auto g3_check = gf<dlr_imfreq, matrix_valued>{{beta, Fermion, w_max, eps}, {1, 1}};
-  for (auto w : g3_check.mesh()) g3_check[w] = 1 / (w - e0);
+  for (auto iw : g3_check.mesh()) g3_check[iw] = 1 / (iw - e0);
 
   EXPECT_GF_NEAR(g3, g3_check);
   EXPECT_EQ(g3.mesh().mesh_hash(), g3_check.mesh().mesh_hash());
 
   // eval g2 on tau is fine
   for (auto tau : g1.mesh()) { EXPECT_COMPLEX_NEAR(g2(tau)(0, 0), g1[tau](0, 0), tol); }
-  // eval g2 on w is fine
-  for (auto w : g3.mesh()) { EXPECT_COMPLEX_NEAR(g2(w)(0, 0), g3[w](0, 0), tol); }
+  // eval g2 on iw is fine
+  for (auto iw : g3.mesh()) { EXPECT_COMPLEX_NEAR(g2(iw)(0, 0), g3[iw](0, 0), tol); }
 }
 // ------------------------------------------------------------
 // simpler test, scalar_valued. Same as in Python.
@@ -121,7 +121,7 @@ TEST(Gf, dlr_mat2) {
   double tol   = 1.e-9;
 
   auto gw = gf<dlr_imfreq, scalar_valued>{dlr_imfreq{beta, Fermion, w_max, eps}};
-  for (auto w : gw.mesh()) gw[w] = 1 / (w - e0);
+  for (auto iw : gw.mesh()) gw[iw] = 1 / (iw - e0);
 
   auto gc = make_gf_dlr(gw);
   auto gt = make_gf_dlr_imtime(gc);
@@ -147,7 +147,7 @@ TEST(Gf, DLR_basic) {
   EXPECT_EQ(m_w_f.eps(), eps);
   EXPECT_EQ(m_w_b.eps(), eps);
 
-  for (const auto &tau : m_tau) {
+  for (auto tau : m_tau) {
     EXPECT_TRUE(tau <= beta);
     EXPECT_TRUE(tau >= 0.0);
   }
@@ -187,12 +187,12 @@ TEST(Gf, DLR_cross_construction) {
   EXPECT_NE(mw.mesh_hash(), mt.mesh_hash());
   EXPECT_NE(mw.mesh_hash(), mc.mesh_hash());
 
-  for (const auto &[c1, c2] : itertools::zip(mc, mc2)) { EXPECT_EQ(c1, c2); }
-  for (const auto &[c1, c2] : itertools::zip(mc, mc3)) { EXPECT_EQ(c1, c2); }
-  for (const auto &[t1, t2] : itertools::zip(mt, mt2)) { EXPECT_CLOSE(t1, t2); }
-  for (const auto &[t1, t2] : itertools::zip(mt, mt3)) { EXPECT_CLOSE(t1, t2); }
-  for (const auto &[w1, w2] : itertools::zip(mw, mw2)) { EXPECT_CLOSE(dcomplex(w1), dcomplex(w2)); }
-  for (const auto &[w1, w2] : itertools::zip(mw, mw3)) { EXPECT_CLOSE(dcomplex(w1), dcomplex(w2)); }
+  for (auto [c1, c2] : itertools::zip(mc, mc2)) { EXPECT_EQ(c1, c2); }
+  for (auto [c1, c2] : itertools::zip(mc, mc3)) { EXPECT_EQ(c1, c2); }
+  for (auto [t1, t2] : itertools::zip(mt, mt2)) { EXPECT_CLOSE(t1, t2); }
+  for (auto [t1, t2] : itertools::zip(mt, mt3)) { EXPECT_CLOSE(t1, t2); }
+  for (auto [w1, w2] : itertools::zip(mw, mw2)) { EXPECT_CLOSE(dcomplex(w1), dcomplex(w2)); }
+  for (auto [w1, w2] : itertools::zip(mw, mw3)) { EXPECT_CLOSE(dcomplex(w1), dcomplex(w2)); }
 }
 
 // ----------------------------------------------------------------
@@ -224,19 +224,19 @@ TEST(Gf, DLR_imtime_grid) {
   EXPECT_GF_NEAR(G1, G2);
 
   auto GpG = G1 + G2; // Addition
-  for (const auto &tau : mesh) {
+  for (auto tau : mesh) {
     EXPECT_CLOSE(GpG[tau], G1[tau] * 2.);
     EXPECT_CLOSE(GpG[tau], 2. * G1[tau]);
   }
 
   auto G4 = 4. * G2; // Multiply with scalar
-  for (const auto &tau : mesh) {
+  for (auto tau : mesh) {
     EXPECT_CLOSE(G4[tau], G1[tau] * 4.);
     EXPECT_CLOSE(G4[tau], 4. * G1[tau]);
   }
 
   auto GG = G1 * G2; // Multiplication
-  for (const auto &tau : mesh) { EXPECT_CLOSE(GG[tau], G1[tau] * G1[tau]); }
+  for (auto tau : mesh) { EXPECT_CLOSE(GG[tau], G1[tau] * G1[tau]); }
 
   EXPECT_TRUE(GG.mesh().statistic() == Boson);
 }
@@ -253,7 +253,7 @@ TEST(Gf, DLR_imfreq_grid) {
   auto mesh = dlr_imfreq{beta, Fermion, w_max, eps};
   auto G1   = gf<dlr_imfreq, scalar_valued>{mesh};
 
-  for (const auto &iw : mesh) { G1[iw] = 1. / (iw - omega); }
+  for (auto iw : mesh) { G1[iw] = 1. / (iw - omega); }
 
   auto Gc = G1; // copy
   EXPECT_GF_NEAR(G1, Gc);
@@ -264,26 +264,26 @@ TEST(Gf, DLR_imfreq_grid) {
   // Take view and assign
   auto G2  = gf<dlr_imfreq, scalar_valued>{mesh};
   auto G2v = gf_view(G2);
-  for (const auto &iw : mesh) { G2v[iw] = 1. / (iw - omega); }
+  for (auto iw : mesh) { G2v[iw] = 1. / (iw - omega); }
 
   EXPECT_GF_NEAR(G2, G2v);
   EXPECT_GF_NEAR(G1, G2v);
   EXPECT_GF_NEAR(G1, G2);
 
   auto GpG = G1 + G2; // Addition
-  for (const auto &iw : mesh) {
+  for (auto iw : mesh) {
     EXPECT_CLOSE(GpG[iw], G1[iw] * 2.);
     EXPECT_CLOSE(GpG[iw], 2. * G1[iw]);
   }
 
   auto G4 = 4. * G2; // Multiply with scalar
-  for (const auto &iw : mesh) {
+  for (auto iw : mesh) {
     EXPECT_CLOSE(G4[iw], G1[iw] * 4.);
     EXPECT_CLOSE(G4[iw], 4. * G1[iw]);
   }
 
   auto GG = G1 * G2; // Multiplication
-  for (const auto &iw : mesh) { EXPECT_CLOSE(GG[iw], G1[iw] * G1[iw]); }
+  for (auto iw : mesh) { EXPECT_CLOSE(GG[iw], G1[iw] * G1[iw]); }
 }
 
 // ----------------------------------------------------------------
@@ -303,17 +303,14 @@ TEST(Gf, DLR_clef) {
   auto gt2  = gf{mesh};
 
   static_assert(std::is_same_v<decltype(gt2), decltype(gt)>);
-  for (const auto &tau : mesh) gt2[tau] = onefermion(tau, omega, beta);
+  for (auto tau : mesh) gt2[tau] = onefermion(tau, omega, beta);
   EXPECT_GF_NEAR(gt, gt2);
 
   auto gw = gf<dlr_imfreq, scalar_valued>{{beta, Fermion, w_max, eps}};
   gw[iw_] << 1. / (iw_ - omega);
 
   auto gw2 = gf<dlr_imfreq, scalar_valued>{{beta, Fermion, w_max, eps}};
-
-  // Should not compile. Wrong mesh point
-  //for (const auto &iw : mesh) gw2[iw] = 1 / (iw - omega);
-  for (const auto &iw : gw2.mesh()) gw2[iw] = 1 / (iw - omega);
+  for (auto iw : gw2.mesh()) gw2[iw] = 1 / (iw - omega);
 
   EXPECT_GF_NEAR(gw, gw2);
 }
@@ -468,10 +465,6 @@ TEST(Gf, DLR_mesh_point_mismatch) {
   auto gw  = gf<dlr_imfreq, scalar_valued>{{beta, Fermion, w_max, eps}};
   auto gw2 = gf<dlr_imfreq, scalar_valued>{{beta2, Fermion, w_max, eps}};
   for (auto iw : gw.mesh()) EXPECT_DEBUG_DEATH(gw2[iw], "Precondition m.mesh_hash");
-
-  // THIS PART SHOULD NOT COMPILE AND GIVE A GOOD ERROR MESSAGE
-  // auto gwold = gf<imfreq, scalar_valued>{{beta2, Fermion}};
-  // for (auto iw : gw.mesh()) gwold[iw] = 0; // must not compile
 }
 
 // ----------------------------------------------------------------
@@ -487,20 +480,17 @@ TEST(Gf, DLR_density) {
   double omega = 1.337;
   gt[tau_] << -nda::clef::exp(-omega * tau_) / (1 + nda::clef::exp(-beta * omega));
 
-  // SHOULD NOT COMPILE. DELETED FUNCTION
-  // auto d = triqs::gfs::density(gt);
-
   // Density from dlr is efficient (by design)
   // only requires interpolation at \tau=\beta ( n = -G(\beta) )
   auto gc = make_gf_dlr(gt);
-  auto nc  = triqs::gfs::density(gc);
+  auto nc = triqs::gfs::density(gc);
   EXPECT_COMPLEX_NEAR(nc, 1 / (1 + std::exp(beta * omega)), 1.e-9);
 
-  auto nt  = triqs::gfs::density(gt);
+  auto nt = triqs::gfs::density(gt);
   EXPECT_COMPLEX_NEAR(nt, 1 / (1 + std::exp(beta * omega)), 1.e-9);
 
   auto gw = make_gf_dlr_imfreq(gc);
-  auto nw  = triqs::gfs::density(gw);
+  auto nw = triqs::gfs::density(gw);
   EXPECT_COMPLEX_NEAR(nw, 1 / (1 + std::exp(beta * omega)), 1.e-9);
 }
 // ----------------------------------------------------------------
@@ -566,13 +556,13 @@ TEST(Gf, DLR_two_poles) {
   auto gtau = gf<dlr_imtime, scalar_valued>{{beta, Fermion, w_max, eps}};
   gtau[tau_] << 0.5 * onefermion(tau_, e1, beta) + 0.5 * onefermion(tau_, e2, beta);
 
-  auto gdlr = make_gf_dlr(gtau);
-  auto giw  = make_gf_dlr_imfreq(gdlr);
+  auto giw = make_gf_dlr_imfreq(gtau);
 
   auto G2_iw = giw;
   G2_iw[iw_] << 0.5 / (iw_ - e1) + 0.5 / (iw_ - e2);
 
   EXPECT_GF_NEAR(giw, G2_iw);
+  EXPECT_GF_NEAR(giw, make_gf_from_fourier(gtau));
 }
 
 // ----------------------------------------------------------------
@@ -589,13 +579,13 @@ TEST(Gf, DLR_multivar) {
   auto gtau        = gf{dlr_it_mesh * dlr_it_mesh};
   gtau[tau_, taup_] << onefermion(tau_, e1, beta) * onefermion(taup_, e2, beta);
 
-  auto gdlr = make_gf_dlr<0, 1>(gtau);
-  auto giw  = make_gf_dlr_imfreq<0, 1>(gdlr);
+  auto giw = make_gf_dlr_imfreq<0, 1>(gtau);
 
   auto G2_iw = giw;
   G2_iw[iw_, iwp_] << 1.0 / (iw_ - e1) / (iwp_ - e2);
 
   EXPECT_GF_NEAR(giw, G2_iw);
+  EXPECT_GF_NEAR(giw, (make_gf_from_fourier<0, 1>(gtau)));
 }
 
 // ----------------------------------------------------------------

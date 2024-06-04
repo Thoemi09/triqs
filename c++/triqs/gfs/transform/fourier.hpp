@@ -39,6 +39,10 @@ namespace triqs::gfs {
   gf_vec_t<imfreq> _fourier_impl(imfreq const &iw_mesh, gf_vec_cvt<imtime> gt, array_const_view<dcomplex, 2> known_moments = {});
   gf_vec_t<imtime> _fourier_impl(imtime const &tau_mesh, gf_vec_cvt<imfreq> gw, array_const_view<dcomplex, 2> known_moments = {});
 
+  // dlr
+  inline gf_vec_t<dlr_imfreq> _fourier_impl(dlr_imfreq const &, gf_vec_cvt<dlr_imtime> gt) { return make_gf_dlr_imfreq(gt); }
+  inline gf_vec_t<dlr_imtime> _fourier_impl(dlr_imtime const &, gf_vec_cvt<dlr_imfreq> gw) { return make_gf_dlr_imtime(gw); }
+
   // real
   gf_vec_t<refreq> _fourier_impl(refreq const &w_mesh, gf_vec_cvt<retime> gt, array_const_view<dcomplex, 2> known_moments = {});
   gf_vec_t<retime> _fourier_impl(retime const &t_mesh, gf_vec_cvt<refreq> gw, array_const_view<dcomplex, 2> known_moments = {});
@@ -133,6 +137,14 @@ namespace triqs::gfs {
 
   template <int N = 0, typename T> gf<imfreq, typename T::complex_t> make_gf_from_fourier(gf_const_view<imtime, T> gin, int n_iw = -1) {
     return make_gf_from_fourier(gin, make_adjoint_mesh(gin.mesh(), n_iw));
+  }
+
+  template <int N = 0, typename T> gf<dlr_imtime, T> make_gf_from_fourier(gf_const_view<dlr_imfreq, T> gin) {
+    return make_gf_from_fourier(gin, make_adjoint_mesh(gin.mesh()));
+  }
+
+  template <int N = 0, typename T> gf<dlr_imfreq, typename T::complex_t> make_gf_from_fourier(gf_const_view<dlr_imtime, T> gin) {
+    return make_gf_from_fourier(gin, make_adjoint_mesh(gin.mesh()));
   }
 
   template <int N = 0, typename T> gf<retime, T> make_gf_from_fourier(gf_const_view<refreq, T> gin, bool shift_half_bin = false) {
