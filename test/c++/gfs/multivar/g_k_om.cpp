@@ -136,4 +136,26 @@ TEST(Gkom, EvalSlice) {
   for (auto w : gw.mesh()) EXPECT_COMPLEX_NEAR(gw[w], g(pi_pi, w), 1.e-12);
 }
 
+// ----------------------------------------------------------------
+
+TEST(Gkom, DLR) {
+  auto beta    = 5.0;
+  auto mu      = 0.5;
+  auto wmax    = 10 * beta;
+  auto eps_DLR = 1e-10;
+  auto const iw_mesh = dlr_imfreq{beta, Fermion, wmax, eps_DLR};
+
+  auto bz = brillouin_zone{bravais_lattice{nda::eye<double>(2)}};
+  auto k_mesh = mesh::brzone{bz, /*n_k =*/ 40};
+
+  auto g = gf<prod<brzone, dlr_imfreq>, scalar_valued>{{k_mesh, iw_mesh}};
+  auto eps = [](auto k) { return -2 * (cos(k[0]) + cos(k[1])); };
+  for (auto [k, iw] : g.mesh()) g[k, iw] = 1 / (iw + mu - eps(k));
+
+  auto gktau = make_gf_from_fourier<1>(g);
+
+  auto onefermion = [&](auto tau, auto w) { return -std::exp(-w * tau) / (1.0 + std::exp(-beta * w)); };
+  for (auto [k, tau] : gktau.mesh()) { EXPECT_COMPLEX_NEAR(gktau[k, tau], onefermion(tau, -mu + eps(k)), 100*eps_DLR); }
+}
+
 MAKE_MAIN;

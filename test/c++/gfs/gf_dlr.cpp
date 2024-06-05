@@ -590,4 +590,18 @@ TEST(Gf, DLR_multivar) {
 
 // ----------------------------------------------------------------
 
+TEST(Gf, DLR_FT_iw_to_tau) {
+  auto beta    = 2.0;
+  auto mu      = 0.5;
+  auto wmax    = 10 * beta;
+  auto eps_DLR = 1e-10;
+
+  auto const iw_mesh = dlr_imfreq{beta, Fermion, wmax, eps_DLR};
+  auto G0_iw         = gf<dlr_imfreq, scalar_valued>{iw_mesh};
+  for (auto iw : G0_iw.mesh()) { G0_iw[iw] = 1.0 / (iw + mu); }
+
+  auto G0 = make_gf_from_fourier(G0_iw);
+  for (auto tau : G0.mesh()) { EXPECT_COMPLEX_NEAR(G0[tau], onefermion(tau, -mu, beta), 10*eps_DLR); }
+}
+
 MAKE_MAIN;
