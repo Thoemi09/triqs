@@ -166,6 +166,8 @@ class test_dlr_mesh(unittest.TestCase):
         for tau in gtau.mesh:
             gtau[tau] = onefermion(tau, omega, eps)
 
+        # test if the symmetrize option works
+        gc = fit_gf_dlr(gtau, w_max, eps, symmetrize=True)
         gc = fit_gf_dlr(gtau, w_max, eps)
         gt = make_gf_dlr_imtime(gc)
 

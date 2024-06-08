@@ -79,17 +79,17 @@ namespace triqs::gfs {
   /// Perform a least square fit of a imaginary time Green's function to obtain a DLR coefficient representation
   template <int N = 0, int... Ns, typename G>
     requires(MemoryGf<G> or is_block_gf_v<G>)
-  auto fit_gf_dlr(G const &g, double w_max, double eps) {
+  auto fit_gf_dlr(G const &g, double w_max, double eps, bool symmetrize = false) {
     using M = typename G::mesh_t;
     if constexpr (is_block_gf_v<G>) {
-      return map_block_gf([&](auto const &gbl) { return fit_gf_dlr<N, Ns...>(gbl, w_max, eps); }, g);
+      return map_block_gf([&](auto const &gbl) { return fit_gf_dlr<N, Ns...>(gbl, w_max, eps, symmetrize); }, g);
     } else if constexpr (mesh::is_product<M>) {
-      return apply_to_mesh<N, Ns...>([&](auto const &gfl) { return fit_gf_dlr(gfl, w_max, eps); }, g);
+      return apply_to_mesh<N, Ns...>([&](auto const &gfl) { return fit_gf_dlr(gfl, w_max, eps, symmetrize); }, g);
     } else {
       static_assert(N == 0, "N must be 0 for non-product meshes");
       static_assert(std::is_same_v<M, mesh::imtime>, "Input mesh must be imtime");
       auto tvals    = nda::array_adapter(std::array{g.mesh().size()}, [&](auto i) { return g.mesh()[i].value() / g.mesh().beta(); });
-      auto mesh     = dlr{g.mesh().beta(), g.mesh().statistic(), w_max, eps};
+      auto mesh     = dlr{g.mesh().beta(), g.mesh().statistic(), w_max, eps, symmetrize};
       auto result   = gf{mesh, g.target_shape()};
       result.data() = result.mesh().dlr_it().fitvals2coefs(make_regular(tvals), g.data());
       return result;

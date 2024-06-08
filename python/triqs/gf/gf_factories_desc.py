@@ -144,7 +144,7 @@ for Target in  ["scalar_valued", "tensor_valued<1>", "matrix_valued", "tensor_va
         m.add_function(f"{gf_type}<dlr_imfreq, {Target}> make_gf_dlr_imfreq({gf_view_type}<dlr_imtime, {Target}> g_tau)", doc="""Transform a DLR coefficient or DLR imaginary time Green's function to it's DLR Matsubara frequency representation""")
 
         # imtime -> dlr
-        m.add_function(f"{gf_type}<dlr, {Target}> fit_gf_dlr({gf_view_type}<imtime, {Target}> g_tau, double w_max, double eps)", doc="""Perform a least square fit of a imaginary time Green's function to obtain a DLR coefficient representation""")
+        m.add_function(f"{gf_type}<dlr, {Target}> fit_gf_dlr({gf_view_type}<imtime, {Target}> g_tau, double w_max, double eps, bool symmetrize = false)", doc="""Perform a least square fit of a imaginary time Green's function to obtain a DLR coefficient representation""")
 
         # imtime <- dlr, dlr_imfreq, dlr_imtime
         m.add_function(f"{gf_type}<imtime, {Target}> make_gf_imtime({gf_view_type}<dlr, {Target}> g_dlr, long n_tau)", doc="""Transform any DLR Green's function to a imaginary time Green's function""")
@@ -177,8 +177,8 @@ for Target in  ["scalar_valued", "matrix_valued"]:
             m.add_function(f"{gf_type}<prod<{M}, dlr_imfreq>, {Target}> make_gf_dlr_imfreq({gf_view_type}<prod<{M}, dlr>, {Target}> g_dlr)", calling_pattern = "auto result = make_gf_dlr_imfreq<1>(g_dlr)")
 
             # imtime <-> dlr
-            m.add_function(f"{gf_type}<prod<dlr, {M}>, {Target}> fit_gf_dlr({gf_view_type}<prod<imtime, {M}>, {Target}> g_tau, double w_max, double eps)", calling_pattern = "auto result = fit_gf_dlr<0>(g_tau, w_max, eps)")
-            m.add_function(f"{gf_type}<prod<{M}, dlr>, {Target}> fit_gf_dlr({gf_view_type}<prod<{M}, imtime>, {Target}> g_tau, double w_max, double eps)", calling_pattern = "auto result = fit_gf_dlr<1>(g_tau, w_max, eps)")
+            m.add_function(f"{gf_type}<prod<dlr, {M}>, {Target}> fit_gf_dlr({gf_view_type}<prod<imtime, {M}>, {Target}> g_tau, double w_max, double eps, bool symmetrize = false)", calling_pattern = "auto result = fit_gf_dlr<0>(g_tau, w_max, eps, symmetrize)")
+            m.add_function(f"{gf_type}<prod<{M}, dlr>, {Target}> fit_gf_dlr({gf_view_type}<prod<{M}, imtime>, {Target}> g_tau, double w_max, double eps, bool symmetrize = false)", calling_pattern = "auto result = fit_gf_dlr<1>(g_tau, w_max, eps, symmetrize)")
             m.add_function(f"{gf_type}<prod<imtime, {M}>, {Target}> make_gf_imtime({gf_view_type}<prod<dlr, {M}>, {Target}> g_dlr, long n_tau)", calling_pattern = "auto result = make_gf_imtime<0>(g_dlr, n_tau)")
             m.add_function(f"{gf_type}<prod<{M}, imtime>, {Target}> make_gf_imtime({gf_view_type}<prod<{M}, dlr>, {Target}> g_dlr, long n_tau)", calling_pattern = "auto result = make_gf_imtime<1>(g_dlr, n_tau)")
 
