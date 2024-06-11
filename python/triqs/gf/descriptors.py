@@ -86,7 +86,7 @@ semicircle
     def __call__(self,G):
         D = self.half_bandwidth
         mu = self.chem_potential
-        Id = complex(1,0) if len(G.target_shape) == 0 else numpy.identity(G.target_shape[0],numpy.complex_)
+        Id = complex(1,0) if len(G.target_shape) == 0 else numpy.identity(G.target_shape[0],numpy.complex128)
         from cmath import sqrt
         if type(G.mesh) in [MeshImFreq, MeshDLRImFreq]:
             def f(om_):
@@ -128,7 +128,7 @@ class Flat (Base):
     def __call__(self,G):
 
         D = self.half_bandwidth
-        Id = 1. if len(G.target_shape) == 0 else numpy.identity(G.target_shape[0], numpy.complex_)
+        Id = 1. if len(G.target_shape) == 0 else numpy.identity(G.target_shape[0], numpy.complex128)
 
         if type(G.mesh) in [MeshImFreq, MeshDLRImFreq]:
             f = lambda om: (-1/(2.0*D)) * numpy.log(numpy.divide(om-D,om+D)) * Id

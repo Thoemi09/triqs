@@ -53,10 +53,10 @@ class SumkDiscrete:
         """
         # constructs the arrays.
         no = len(self.__GFBLOC_Structure)
-        self.hopping    = numpy.zeros([nk,no,no],numpy.complex_)   # t(k_index,a,b)
-        self.bz_points  = numpy.zeros([nk,self.dim],numpy.float_)      # k(k_index,:)
-        self.bz_weights = numpy.ones([nk],numpy.float_)/ float(nk) # w(k_kindex) ,  default normalisation
-        self.mu_pattern  =  numpy.identity(no,numpy.complex_) if self.orthogonal_basis else numpy.zeros([no,no,nk],numpy.complex_)
+        self.hopping    = numpy.zeros([nk,no,no],numpy.complex128)   # t(k_index,a,b)
+        self.bz_points  = numpy.zeros([nk,self.dim],numpy.float64)      # k(k_index,:)
+        self.bz_weights = numpy.ones([nk],numpy.float64)/ float(nk) # w(k_kindex) ,  default normalisation
+        self.mu_pattern  =  numpy.identity(no,numpy.complex128) if self.orthogonal_basis else numpy.zeros([no,no,nk],numpy.complex128)
         self.overlap = numpy.array(self.mu_pattern, copy=True)
 
    #-------------------------------------------------------------
@@ -140,7 +140,7 @@ class SumkDiscrete:
         # Initialize
         G.zero()
         tmp,tmp2 = G.copy(),G.copy()
-        mupat = mu * numpy.identity(no, numpy.complex_)
+        mupat = mu * numpy.identity(no, numpy.complex128)
         tmp << iOmega_n
         if field != None: tmp -= field
         if not Sigma_fnt: tmp -= Sigma  # substract Sigma once for all
