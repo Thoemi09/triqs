@@ -49,24 +49,27 @@ namespace triqs::gfs {
 
   template <> struct gf_evaluator<mesh::imfreq> {
 
-    template <typename G> auto operator()(G const &g, matsubara_freq const &f) const -> typename G::target_t::value_t {
+    template <typename G> auto operator()(G const &g, matsubara_freq const &f) const {
 
-      if (g.mesh().is_index_valid(f.n)) return g[f.n];
+      using r_t = std::decay_t<decltype(make_regular(g[0]))>;
+
+      if (g.mesh().is_index_valid(f.n)) return r_t{g[f.n]};
       if (g.mesh().positive_only()) {
         int sh = (g.mesh().statistic() == Fermion ? 1 : 0);
-        if (g.mesh().is_index_valid(-f.n - sh)) return conj(g[-f.n - sh]);
+        if (g.mesh().is_index_valid(-f.n - sh)) return r_t{conj(g[-f.n - sh])};
         TRIQS_RUNTIME_ERROR << " ERROR: Cannot evaluate Green function with positive only mesh outside grid ";
       }
 
       auto [tail, err] = fit_tail_no_normalize(g);
       dcomplex x       = std::abs(g.mesh().w_max()) / f;
-      auto res         = nda::zeros<dcomplex>(g.target_shape()); // a new array
+      auto res         = r_t{nda::zeros<dcomplex>(g.target_shape())}; // a new array
 
       dcomplex z = 1.0;
       for (int n : range(tail.extent(0))) {
         res += tail(n, ellipsis()) * z;
         z = z * x;
       }
+
       return res;
     }
 

@@ -33,7 +33,8 @@ namespace triqs::gfs {
     *
     */
   // mako ${mpidoc("Bcast")}
-  template <typename V, typename T, int Arity> void mpi_broadcast(block_gf<V, T, Arity> &g, mpi::communicator c = {}, int root = 0) {
+  template <typename V, typename T, typename Layout, int Arity>
+  void mpi_broadcast(block_gf<V, T, Layout, Arity> &g, mpi::communicator c = {}, int root = 0) {
     // Shall we bcast mesh ?
     mpi::broadcast(g.data(), c, root);
   }
@@ -52,8 +53,8 @@ namespace triqs::gfs {
     *
     */
   // mako ${mpidoc("Bcast")}
-  template <typename V, typename T, int Arity, bool IsConst>
-  void mpi_broadcast(block_gf_view<V, T, Arity, IsConst> &g, mpi::communicator c = {}, int root = 0) {
+  template <typename V, typename T, typename Layout, int Arity, bool IsConst>
+  void mpi_broadcast(block_gf_view<V, T, Layout, Arity, IsConst> &g, mpi::communicator c = {}, int root = 0) {
     // Shall we bcast mesh ?
     mpi::broadcast(g.data(), c, root);
   }
@@ -70,9 +71,9 @@ namespace triqs::gfs {
     * @param root The root of the broadcast communication in the MPI sense.
     * @return Returns a lazy object describing the object and the MPI operation to be performed.
     */
-  template <typename V, typename T, int Arity>
-  mpi::lazy<mpi::tag::reduce, block_gf_const_view<V, T, Arity>> mpi_reduce(block_gf<V, T, Arity> const &a, mpi::communicator c = {}, int root = 0,
-                                                                           bool all = false, MPI_Op op = MPI_SUM) {
+  template <typename V, typename T, typename Layout, int Arity>
+  mpi::lazy<mpi::tag::reduce, typename block_gf<V, T, Layout, Arity>::const_view_type>
+  mpi_reduce(block_gf<V, T, Layout, Arity> const &a, mpi::communicator c = {}, int root = 0, bool all = false, MPI_Op op = MPI_SUM) {
     return {a(), c, root, all, op};
   }
 
@@ -88,9 +89,9 @@ namespace triqs::gfs {
     * @param root The root of the broadcast communication in the MPI sense.
     * @return Returns a lazy object describing the object and the MPI operation to be performed.
     */
-  template <typename V, typename T, int Arity, bool IsConst>
-  mpi::lazy<mpi::tag::reduce, block_gf_const_view<V, T, Arity>> mpi_reduce(block_gf_view<V, T, Arity, IsConst> const &a, mpi::communicator c = {},
-                                                                           int root = 0, bool all = false, MPI_Op op = MPI_SUM) {
+  template <typename V, typename T, typename Layout, int Arity, bool IsConst>
+  mpi::lazy<mpi::tag::reduce, block_gf_const_view<V, T, Layout, Arity>>
+  mpi_reduce(block_gf_view<V, T, Layout, Arity, IsConst> const &a, mpi::communicator c = {}, int root = 0, bool all = false, MPI_Op op = MPI_SUM) {
     return {a, c, root, all, op};
   }
 

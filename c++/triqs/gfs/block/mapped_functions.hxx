@@ -16,17 +16,17 @@
   
     VIMEXPAND inverse reinterpret_scalar_valued_gf_as_matrix_valued make_gf_from_fourier make_gf_from_inverse_fourier
     ///
-    template <typename M, typename T, int A> auto @(block_gf<M, T, A> &g) {
+    template <typename M, typename T, typename L, int A> auto @(block_gf<M, T, L, A> &g) {
       auto l = [](auto &&x) { return @(x); };
       return map_block_gf(l, g);
     }
     ///
-    template <typename M, typename T, int A> auto @(block_gf<M, T, A> const &g) {
+    template <typename M, typename T, typename L, int A> auto @(block_gf<M, T, L, A> const &g) {
       auto l = [](auto &&x) { return @(x); };
       return map_block_gf(l, g);
     }
     ///  
-    template <typename M, typename T, int A, bool C> auto @(block_gf_view<M, T, A, C> g) {
+    template <typename M, typename T, typename L, int A, bool C> auto @(block_gf_view<M, T, L, A, C> g) {
       auto l = [](auto &&x) { return @(x); };
       return map_block_gf(l, g);
     }
@@ -38,65 +38,65 @@ namespace triqs::gfs {
   // --- VIMEXPAND_START  --DO NOT EDIT BELOW --
 
   ///
-  template <typename M, typename T, int A> auto inverse(block_gf<M, T, A> &g) {
+  template <typename M, typename T, typename L, int A> auto inverse(block_gf<M, T, L, A> &g) {
     auto l = [](auto &&x) { return inverse(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A> auto inverse(block_gf<M, T, A> const &g) {
+  template <typename M, typename T, typename L, int A> auto inverse(block_gf<M, T, L, A> const &g) {
     auto l = [](auto &&x) { return inverse(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A, bool C> auto inverse(block_gf_view<M, T, A, C> g) {
+  template <typename M, typename T, typename L, int A, bool C> auto inverse(block_gf_view<M, T, L, A, C> g) {
     auto l = [](auto &&x) { return inverse(x); };
     return map_block_gf(l, g);
   }
 
   ///
-  template <typename M, typename T, int A> auto reinterpret_scalar_valued_gf_as_matrix_valued(block_gf<M, T, A> &g) {
+  template <typename M, typename T, typename L, int A> auto reinterpret_scalar_valued_gf_as_matrix_valued(block_gf<M, T, L, A> &g) {
     auto l = [](auto &&x) { return reinterpret_scalar_valued_gf_as_matrix_valued(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A> auto reinterpret_scalar_valued_gf_as_matrix_valued(block_gf<M, T, A> const &g) {
+  template <typename M, typename T, typename L, int A> auto reinterpret_scalar_valued_gf_as_matrix_valued(block_gf<M, T, L, A> const &g) {
     auto l = [](auto &&x) { return reinterpret_scalar_valued_gf_as_matrix_valued(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A, bool C> auto reinterpret_scalar_valued_gf_as_matrix_valued(block_gf_view<M, T, A, C> g) {
+  template <typename M, typename T, typename L, int A, bool C> auto reinterpret_scalar_valued_gf_as_matrix_valued(block_gf_view<M, T, L, A, C> g) {
     auto l = [](auto &&x) { return reinterpret_scalar_valued_gf_as_matrix_valued(x); };
     return map_block_gf(l, g);
   }
 
   ///
-  template <typename M, typename T, int A> auto make_gf_from_fourier(block_gf<M, T, A> &g) {
+  template <typename M, typename T, typename L, int A> auto make_gf_from_fourier(block_gf<M, T, L, A> &g) {
     auto l = [](auto &&x) { return make_gf_from_fourier(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A> auto make_gf_from_fourier(block_gf<M, T, A> const &g) {
+  template <typename M, typename T, typename L, int A> auto make_gf_from_fourier(block_gf<M, T, L, A> const &g) {
     auto l = [](auto &&x) { return make_gf_from_fourier(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A, bool C> auto make_gf_from_fourier(block_gf_view<M, T, A, C> g) {
+  template <typename M, typename T, typename L, int A, bool C> auto make_gf_from_fourier(block_gf_view<M, T, L, A, C> g) {
     auto l = [](auto &&x) { return make_gf_from_fourier(x); };
     return map_block_gf(l, g);
   }
 
   ///
-  template <typename M, typename T, int A> auto make_gf_from_inverse_fourier(block_gf<M, T, A> &g) {
+  template <typename M, typename T, typename L, int A> auto make_gf_from_inverse_fourier(block_gf<M, T, L, A> &g) {
     auto l = [](auto &&x) { return make_gf_from_inverse_fourier(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A> auto make_gf_from_inverse_fourier(block_gf<M, T, A> const &g) {
+  template <typename M, typename T, typename L, int A> auto make_gf_from_inverse_fourier(block_gf<M, T, L, A> const &g) {
     auto l = [](auto &&x) { return make_gf_from_inverse_fourier(x); };
     return map_block_gf(l, g);
   }
   ///
-  template <typename M, typename T, int A, bool C> auto make_gf_from_inverse_fourier(block_gf_view<M, T, A, C> g) {
+  template <typename M, typename T, typename L, int A, bool C> auto make_gf_from_inverse_fourier(block_gf_view<M, T, L, A, C> g) {
     auto l = [](auto &&x) { return make_gf_from_inverse_fourier(x); };
     return map_block_gf(l, g);
   }

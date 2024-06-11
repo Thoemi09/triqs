@@ -22,24 +22,27 @@ namespace triqs::gfs {
   // -------------------------------   Free Factories for regular type  --------------------------------------------------
 
   ///
-  template <typename V, typename T> block_gf<V, T> make_block_gf(int n, gf<V, T> const &g) { return {n, g}; }
+  template <typename V, typename T, typename L> block_gf<V, T, L> make_block_gf(int n, gf<V, T, L> const &g) { return {n, g}; }
 
   ///
-  template <typename V, typename T> block_gf<V, T> make_block_gf(std::vector<gf<V, T>> v) { return {std::move(v)}; }
+  template <typename V, typename T, typename L> block_gf<V, T, L> make_block_gf(std::vector<gf<V, T, L>> v) { return {std::move(v)}; }
 
   ///
-  template <typename V, typename T> block_gf<V, T> make_block_gf(std::initializer_list<gf<V, T>> const &v) { return {v}; }
+  template <typename V, typename T, typename L> block_gf<V, T, L> make_block_gf(std::initializer_list<gf<V, T, L>> const &v) { return {v}; }
 
   ///
-  template <typename V, typename T> block_gf<V, T> make_block_gf(std::vector<std::string> const &b, gf<V, T> const &g) { return {b, g}; }
+  template <typename V, typename T, typename L> block_gf<V, T, L> make_block_gf(std::vector<std::string> const &b, gf<V, T, L> const &g) {
+    return {b, g};
+  }
 
   ///
-  template <typename V, typename T> block_gf<V, T> make_block_gf(std::vector<std::string> const &b, std::vector<gf<V, T>> v) {
+  template <typename V, typename T, typename L> block_gf<V, T, L> make_block_gf(std::vector<std::string> const &b, std::vector<gf<V, T, L>> v) {
     return {b, std::move(v)};
   }
 
   ///
-  template <typename V, typename T> block_gf<V, T> make_block_gf(std::vector<std::string> b, std::initializer_list<gf<V, T>> const &v) {
+  template <typename V, typename T, typename L>
+  block_gf<V, T, L> make_block_gf(std::vector<std::string> b, std::initializer_list<gf<V, T, L>> const &v) {
     return {b, v};
   }
 
@@ -99,12 +102,12 @@ namespace triqs::gfs {
   // -------------------------------   Free Factories for block2_gf   --------------------------------------------------
 
   /// From the size n x p and the g from a number and a gf to be copied
-  template <typename V, typename T> block2_gf<V, T> make_block2_gf(int n, int p, gf<V, T> const &g) { return {n, p, g}; }
+  template <typename V, typename T, typename L> block2_gf<V, T, L> make_block2_gf(int n, int p, gf<V, T, L> const &g) { return {n, p, g}; }
 
   // from vector<tuple<string,string>>, vector<gf>
-  template <typename V, typename T>
-  block2_gf<V, T> make_block2_gf(std::vector<std::string> const &block_names1, std::vector<std::string> const &block_names2,
-                                 std::vector<std::vector<gf<V, T>>> vv) {
+  template <typename V, typename T, typename L>
+  block2_gf<V, T, L> make_block2_gf(std::vector<std::string> const &block_names1, std::vector<std::string> const &block_names2,
+                                    std::vector<std::vector<gf<V, T, L>>> vv) {
     if (block_names1.size() != vv.size())
       TRIQS_RUNTIME_ERROR << "make_block2_gf(vector<string>, vector<string>>, vector<vector<gf>>): incompatible outer vector size!";
     for (auto const &v : vv) {

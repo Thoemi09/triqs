@@ -141,4 +141,22 @@ TEST(Block, Arithmetic) {
   EXPECT_BLOCK_GF_NEAR(block_gf<imfreq>{2 * B}, block_gf<imfreq>{1.0 * B + B * 1.0});
 }
 
+TEST(Block, F_Layout) {
+  double beta  = 1;
+  auto iw_mesh = mesh::dlr_imfreq{beta, Fermion, /*w_max*/ 10, /*eps*/ 1e-8};
+  auto G1      = gf<dlr_imfreq, matrix_valued, F_layout>(iw_mesh, {2, 2});
+  auto G2      = G1;
+  triqs::clef::placeholder<0> w_;
+  G1(w_) << 1 / (w_ + 2);
+  G2(w_) << 1 / (w_ - 2);
+
+  auto B = make_block_gf({"a", "b"}, {G1, G2});
+
+  EXPECT_BLOCK_GF_NEAR(block_gf<dlr_imfreq>{2 * B}, block_gf<dlr_imfreq>{1.0 * B + B * 1.0});
+
+  auto w0 = iw_mesh(0);
+  EXPECT_TRUE(B[0][w0].indexmap().is_stride_order_Fortran());
+  static_assert(nda::is_matrix_or_view_v<decltype(B[0][w0])>);
+}
+
 MAKE_MAIN;

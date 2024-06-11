@@ -145,12 +145,6 @@ namespace triqs::gfs {
       target_shape_t _shape;
       using target_t = Target;
       target_shape_t const &shape() const { return _shape; }
-      typename Target::value_t make_value() const {
-        if constexpr (target_t::rank == 0)
-          return 0;
-        else
-          return typename Target::value_t{shape()};
-      }
     };
 
     // ------------- Accessors -----------------------------

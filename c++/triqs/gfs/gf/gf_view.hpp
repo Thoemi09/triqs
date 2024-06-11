@@ -87,12 +87,6 @@ namespace triqs::gfs {
       target_shape_t _shape;
       using target_t = Target;
       target_shape_t const &shape() const { return _shape; }
-      typename Target::value_t make_value() const {
-        if constexpr (target_t::rank == 0)
-          return 0;
-        else
-          return typename Target::value_t{shape()};
-      }
     };
 
     // ------------- Accessors -----------------------------
@@ -283,7 +277,7 @@ namespace triqs::gfs {
  *                                     View  assignment
  *-----------------------------------------------------------------------------------------------------*/
 
-  template <typename M, typename T, typename RHS> void triqs_gf_view_assign_delegation(gf_view<M, T> g, RHS const &rhs) {
+  template <typename M, typename T, typename L, typename RHS> void triqs_gf_view_assign_delegation(gf_view<M, T, L> g, RHS const &rhs) {
     if constexpr (nda::is_scalar_v<RHS>) {
       for (auto w : g.mesh()) g[w] = rhs;
     } else {

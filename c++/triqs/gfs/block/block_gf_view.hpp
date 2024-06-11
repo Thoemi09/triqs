@@ -21,7 +21,8 @@
 
 namespace triqs::gfs {
 
-  template <typename Mesh, typename Target, int Arity, bool IsConst> class block_gf_view : is_view_tag, TRIQS_CONCEPT_TAG_NAME(BlockGreenFunction) {
+  template <typename Mesh, typename Target, typename Layout, int Arity, bool IsConst>
+  class block_gf_view : is_view_tag, TRIQS_CONCEPT_TAG_NAME(BlockGreenFunction) {
     using this_t = block_gf_view; // for common code
 
     public:
@@ -32,15 +33,15 @@ namespace triqs::gfs {
     using mesh_t   = Mesh;
     using target_t = Target;
 
-    using regular_type      = block_gf<Mesh, Target, Arity>;
-    using mutable_view_type = block_gf_view<Mesh, Target, Arity>;
-    using view_type         = block_gf_view<Mesh, Target, Arity, false>;
-    using const_view_type   = block_gf_view<Mesh, Target, Arity, true>;
+    using regular_type      = block_gf<Mesh, Target, typename Layout::contiguous_t, Arity>;
+    using mutable_view_type = block_gf_view<Mesh, Target, Layout, Arity>;
+    using view_type         = block_gf_view<Mesh, Target, Layout, Arity, false>;
+    using const_view_type   = block_gf_view<Mesh, Target, Layout, Arity, true>;
 
     /// The associated real type
-    using real_t = block_gf_view<Mesh, typename Target::real_t, Arity, IsConst>;
+    using real_t = block_gf_view<Mesh, typename Target::real_t, Layout, Arity, IsConst>;
 
-    using g_t           = std::conditional_t<IsConst, gf_const_view<Mesh, Target>, gf_view<Mesh, Target>>;
+    using g_t           = std::conditional_t<IsConst, gf_const_view<Mesh, Target, Layout>, gf_view<Mesh, Target, Layout>>;
     using data_t        = std::conditional_t<Arity == 1, std::vector<g_t>, std::vector<std::vector<g_t>>>;
     using block_names_t = std::conditional_t<Arity == 1, std::vector<std::string>, std::vector<std::vector<std::string>>>;
 
@@ -80,17 +81,20 @@ namespace triqs::gfs {
 
     block_gf_view() = default;
 
-    block_gf_view(block_gf<Mesh, Target, Arity> const &g)
+    template <typename L>
+    block_gf_view(block_gf<Mesh, Target, L, Arity> const &g)
       requires(IsConst)
        : block_gf_view(impl_tag{}, g) {}
 
-    block_gf_view(block_gf<Mesh, Target, Arity> &g)
+    template <typename L>
+    block_gf_view(block_gf<Mesh, Target, L, Arity> &g)
       requires(!IsConst)
        : block_gf_view(impl_tag{}, g) {}
 
-    block_gf_view(block_gf<Mesh, Target, Arity> &&g) noexcept : block_gf_view(impl_tag{}, std::move(g)) {}
+    template <typename L> block_gf_view(block_gf<Mesh, Target, L, Arity> &&g) noexcept : block_gf_view(impl_tag{}, std::move(g)) {}
 
-    block_gf_view(block_gf_view<Mesh, Target, Arity, !IsConst> const &g)
+    template <typename L>
+    block_gf_view(block_gf_view<Mesh, Target, L, Arity, !IsConst> const &g)
       requires(IsConst)
        : block_gf_view(impl_tag{}, g) {}
 
@@ -173,17 +177,17 @@ namespace triqs::gfs {
       _glist       = data_t{x._glist}; // copy of vector<vector<gf_view>>, makes new views on the gf of x
       name         = x.name;
     }
-    void rebind(block_gf_view<Mesh, Target, Arity, !IsConst> const &X) noexcept
+    void rebind(block_gf_view<Mesh, Target, Layout, Arity, !IsConst> const &X) noexcept
       requires(IsConst)
     {
       rebind(block_gf_view{X});
     }
-    void rebind(block_gf<Mesh, Target, Arity> const &X) noexcept
+    void rebind(block_gf<Mesh, Target, Layout, Arity> const &X) noexcept
       requires(IsConst)
     {
       rebind(block_gf_view{X});
     }
-    void rebind(block_gf<Mesh, Target, Arity> &X) noexcept { rebind(block_gf_view{X}); }
+    void rebind(block_gf<Mesh, Target, Layout, Arity> &X) noexcept { rebind(block_gf_view{X}); }
 
     public:
     //----------------------------- print  -----------------------------
@@ -199,6 +203,7 @@ namespace triqs::gfs {
  *             Delete std::swap for views
  *-----------------------------------------------------------------------------------------------------*/
 namespace std {
-  template <typename Mesh, typename Target, int Arity, bool IsConst>
-  void swap(triqs::gfs::block_gf_view<Mesh, Target, Arity, IsConst> &a, triqs::gfs::block_gf_view<Mesh, Target, Arity, IsConst> &b) = delete;
+  template <typename Mesh, typename Target, typename Layout, int Arity, bool IsConst>
+  void swap(triqs::gfs::block_gf_view<Mesh, Target, Layout, Arity, IsConst> &a,
+            triqs::gfs::block_gf_view<Mesh, Target, Layout, Arity, IsConst> &b) = delete;
 } // namespace std

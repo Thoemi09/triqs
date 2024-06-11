@@ -27,22 +27,26 @@ namespace triqs::gfs {
   /*----------------------------------------------------------
    *   Declaration of main types : gf, gf_view, gf_const_view
    *--------------------------------------------------------*/
-  template <typename Mesh, typename Target = matrix_valued, int Arity = 1> class block_gf;
-  template <typename Mesh, typename Target = matrix_valued, int Arity = 1, bool IsConst = false> class block_gf_view;
+  template <typename Mesh, typename Target = matrix_valued, typename Layout = nda::C_layout, int Arity = 1> class block_gf;
+  template <typename Mesh, typename Target = matrix_valued, typename Layout = nda::C_stride_layout, int Arity = 1, bool IsConst = false>
+  class block_gf_view;
 
   // aliases
-  template <typename Mesh, typename Target = matrix_valued, int Arity = 1> using block_gf_const_view = block_gf_view<Mesh, Target, Arity, true>;
+  template <typename Mesh, typename Target = matrix_valued, typename Layout = nda::C_stride_layout, int Arity = 1>
+  using block_gf_const_view = block_gf_view<Mesh, Target, Layout, Arity, true>;
 
-  template <typename Mesh, typename Target = matrix_valued> using block2_gf            = block_gf<Mesh, Target, 2>;
-  template <typename Mesh, typename Target = matrix_valued> using block2_gf_view       = block_gf_view<Mesh, Target, 2, false>;
-  template <typename Mesh, typename Target = matrix_valued> using block2_gf_const_view = block_gf_view<Mesh, Target, 2, true>;
+  template <typename Mesh, typename Target = matrix_valued, typename Layout = nda::C_layout> using block2_gf = block_gf<Mesh, Target, Layout, 2>;
+  template <typename Mesh, typename Target = matrix_valued, typename Layout = nda::C_stride_layout>
+  using block2_gf_view = block_gf_view<Mesh, Target, Layout, 2, false>;
+  template <typename Mesh, typename Target = matrix_valued, typename Layout = nda::C_stride_layout>
+  using block2_gf_const_view = block_gf_view<Mesh, Target, Layout, 2, true>;
 
   /// --------------------------- CTAD ---------------------------------
 
-  template <typename Mesh, typename Target> block_gf(std::vector<gf<Mesh, Target>>) -> block_gf<Mesh, Target, 1>;
-  template <typename Mesh> block_gf(Mesh const &, gf_struct_t const &) -> block_gf<Mesh, matrix_valued, 1>;
-  template <typename Mesh, typename Target, int Arity, bool IsConst>
-  block_gf(block_gf_view<Mesh, Target, Arity, IsConst>) -> block_gf<Mesh, Target, Arity>;
+  template <typename Mesh, typename Target, typename Layout> block_gf(std::vector<gf<Mesh, Target, Layout>>) -> block_gf<Mesh, Target, Layout, 1>;
+  template <typename Mesh> block_gf(Mesh const &, gf_struct_t const &) -> block_gf<Mesh, matrix_valued>;
+  template <typename Mesh, typename Target, typename Layout, int Arity, bool IsConst>
+  block_gf(block_gf_view<Mesh, Target, Layout, Arity, IsConst>) -> block_gf<Mesh, Target, typename Layout::contiguous_t, Arity>;
 
   /// ---------------------------  traits ---------------------------------
 
@@ -53,10 +57,11 @@ namespace triqs::gfs {
   //
   template <typename G, int n = 0> inline constexpr bool is_block_gf_v = false;
 
-  template <typename Mesh, typename Target, int Arity> inline constexpr bool is_block_gf_v<block_gf<Mesh, Target, Arity>, Arity> = true;
+  template <typename Mesh, typename Target, typename Layout, int Arity>
+  inline constexpr bool is_block_gf_v<block_gf<Mesh, Target, Layout, Arity>, Arity> = true;
 
-  template <typename Mesh, typename Target, int Arity, bool IsConst>
-  inline constexpr bool is_block_gf_v<block_gf_view<Mesh, Target, Arity, IsConst>, Arity> = true;
+  template <typename Mesh, typename Target, typename Layout, int Arity, bool IsConst>
+  inline constexpr bool is_block_gf_v<block_gf_view<Mesh, Target, Layout, Arity, IsConst>, Arity> = true;
 
   template <typename, typename = std::void_t<>> inline constexpr int arity_of = -1;
 
@@ -101,7 +106,7 @@ namespace triqs::gfs {
 
   /// ---------------------------  implementation  ---------------------------------
 
-  template <typename Mesh, typename Target, int Arity> class block_gf : TRIQS_CONCEPT_TAG_NAME(BlockGreenFunction) {
+  template <typename Mesh, typename Target, typename Layout, int Arity> class block_gf : TRIQS_CONCEPT_TAG_NAME(BlockGreenFunction) {
     using this_t = block_gf; // for common code
     public:
     static constexpr bool is_view  = false;
@@ -111,15 +116,15 @@ namespace triqs::gfs {
     using mesh_t   = Mesh;
     using target_t = Target;
 
-    using regular_type      = block_gf<Mesh, Target, Arity>;
-    using mutable_view_type = block_gf_view<Mesh, Target, Arity>;
-    using view_type         = block_gf_view<Mesh, Target, Arity, false>;
-    using const_view_type   = block_gf_view<Mesh, Target, Arity, true>;
+    using regular_type      = block_gf<Mesh, Target, Layout, Arity>;
+    using mutable_view_type = block_gf_view<Mesh, Target, typename Layout::with_lowest_guarantee_t, Arity>;
+    using view_type         = block_gf_view<Mesh, Target, typename Layout::with_lowest_guarantee_t, Arity, false>;
+    using const_view_type   = block_gf_view<Mesh, Target, typename Layout::with_lowest_guarantee_t, Arity, true>;
 
     /// The associated real type
-    using real_t = block_gf<Mesh, typename Target::real_t, Arity>;
+    using real_t = block_gf<Mesh, typename Target::real_t, Layout, Arity>;
 
-    using g_t           = gf<Mesh, Target>;
+    using g_t           = gf<Mesh, Target, Layout>;
     using data_t        = std::conditional_t<Arity == 1, std::vector<g_t>, std::vector<std::vector<g_t>>>;
     using block_names_t = std::conditional_t<Arity == 1, std::vector<std::string>, std::vector<std::vector<std::string>>>;
 
@@ -159,7 +164,7 @@ namespace triqs::gfs {
     block_gf() = default;
 
     /// From a block_gf_view of the same kind
-    template <bool IsConst2> block_gf(block_gf_view<Mesh, Target, Arity, IsConst2> const &g) : block_gf(impl_tag{}, g) {}
+    template <typename L, bool Cnst> block_gf(block_gf_view<Mesh, Target, L, Arity, Cnst> const &g) : block_gf(impl_tag{}, g) {}
 
     /// Construct from anything which models BlockGreenFunction.
     // TODO: We would like to refine this, G should have the same mesh, target, at least ...

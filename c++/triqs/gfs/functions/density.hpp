@@ -48,8 +48,7 @@ namespace triqs {
      * @return auto A tensor/matrix or a scalar, depending on the target
      */
     auto density(MemoryGf<mesh::dlr> auto const &g) {
-      auto res = g.target().make_value();
-      res      = -g(g.mesh().beta());
+      auto res = make_regular(-g(g.mesh().beta()));
       // Transpose to get <cdag_i c_j> instead of <cdag_j c_i>
       if constexpr (requires { transpose(res); }) {
         res = transpose(res);

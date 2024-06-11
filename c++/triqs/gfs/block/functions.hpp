@@ -19,15 +19,15 @@
 
 namespace triqs::gfs {
 
-  template <typename V, typename T, int A> auto fourier(block_gf<V, T, A> const &g) {
+  template <typename V, typename T, typename L, int A> auto fourier(block_gf<V, T, L, A> const &g) {
     return make_lazy_transform([](auto &&x) { return fourier(x); }, g);
   };
 
-  template <typename V, typename T, int A> auto fourier(block_gf<V, T, A> &g) {
+  template <typename V, typename T, typename L, int A> auto fourier(block_gf<V, T, L, A> &g) {
     return make_lazy_transform([](auto &&x) { return fourier(x); }, g);
   };
 
-  template <typename V, typename T, int A, bool C> auto fourier(block_gf_view<V, T, A, C> g) {
+  template <typename V, typename T, typename L, int A, bool C> auto fourier(block_gf_view<V, T, L, A, C> g) {
     return make_lazy_transform([](auto &&x) { return fourier(x); }, g);
   };
 
