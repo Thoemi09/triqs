@@ -247,7 +247,8 @@ namespace triqs::mesh {
       auto statistic  = (h5::read<std::string>(gr, "statistic") == "F" ? Fermion : Boson);
       auto w_max      = h5::read<double>(gr, "w_max");
       auto eps        = h5::read<double>(gr, "eps");
-      auto symmetrize = h5::read<bool>(gr, "symmetrize");
+      bool symmetrize = false;
+      h5::try_read(gr, "symmetrize", symmetrize);
       auto _dlr_freq  = h5::read<nda::vector<double>>(gr, "dlr_freq");
       auto _dlr_it    = h5::read<cppdlr::imtime_ops>(gr, "dlr_it");
       auto _dlr_if    = h5::read<cppdlr::imfreq_ops>(gr, "dlr_if");
