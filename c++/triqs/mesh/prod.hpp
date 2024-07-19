@@ -39,9 +39,9 @@ namespace triqs::mesh {
     using tuple_t      = std::tuple<typename Ms::mesh_point_t...>;
 
     private:
-    index_t _index           = std::apply([](auto &...x) { return std::make_tuple(x.index()...); }, *this);
-    data_index_t _data_index = std::apply([](auto &...x) { return std::make_tuple(x.data_index()...); }, *this);
-    uint64_t _mesh_hash      = std::apply([](auto &...x) { return (x.mesh_hash() + ...); }, *this);
+    index_t _index           = std::apply([](auto &...x) { return std::make_tuple(x.index()...); }, as_tuple());
+    data_index_t _data_index = std::apply([](auto &...x) { return std::make_tuple(x.data_index()...); }, as_tuple());
+    uint64_t _mesh_hash      = std::apply([](auto &...x) { return (x.mesh_hash() + ...); }, as_tuple());
 
     public:
     prod_mesh_point() = default;
