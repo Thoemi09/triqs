@@ -113,6 +113,8 @@ def h_int_kanamori(
     U,
     Uprime,
     J_hund,
+    spin_flip=True,
+    pair_hopping=True,
     off_diag=None,
     map_operator_structure=None,
     H_dump=None,
@@ -138,6 +140,10 @@ def h_int_kanamori(
                :math:`U_{ij}^{\sigma \bar{\sigma}} (opposite spins)`
     J_hund : scalar
                :math:`J`
+    spin_flip : boolean
+                include spin-flip terms
+    pair_hopping : boolean
+                include pair-hopping terms
     off_diag : boolean
                Do we have (orbital) off-diagonal elements?
                If yes, the operators and blocks are denoted by ('spin', 'orbital'),
@@ -184,40 +190,42 @@ def h_int_kanamori(
                 H_dump_file.write(str(U_val) + '\n')
 
     # spin-flip terms:
-    if H_dump:
-        H_dump_file.write('Spin-flip terms:' + '\n')
-    for s1, s2 in product(spin_names, spin_names):
-        if s1 == s2:
-            continue
-        for a1, a2 in product(range(n_orb), range(n_orb)):
-            if a1 == a2:
+    if spin_flip:
+        if H_dump:
+            H_dump_file.write('Spin-flip terms:' + '\n')
+        for s1, s2 in product(spin_names, spin_names):
+            if s1 == s2:
                 continue
-            H_term = -0.5 * J_hund * c_dag(*mkind(s1, a1)) * c(*mkind(s2, a1)) * c_dag(*mkind(s2, a2)) * c(*mkind(s1, a2))
-            H += H_term
+            for a1, a2 in product(range(n_orb), range(n_orb)):
+                if a1 == a2:
+                    continue
+                H_term = -0.5 * J_hund * c_dag(*mkind(s1, a1)) * c(*mkind(s2, a1)) * c_dag(*mkind(s2, a2)) * c(*mkind(s1, a2))
+                H += H_term
 
-            # Dump terms of H
-            if H_dump and not H_term.is_zero():
-                H_dump_file.write('%s' % (mkind(s1, a1),) + '\t')
-                H_dump_file.write('%s' % (mkind(s2, a2),) + '\t')
-                H_dump_file.write(str(-J_hund) + '\n')
+                # Dump terms of H
+                if H_dump and not H_term.is_zero():
+                    H_dump_file.write('%s' % (mkind(s1, a1),) + '\t')
+                    H_dump_file.write('%s' % (mkind(s2, a2),) + '\t')
+                    H_dump_file.write(str(-J_hund) + '\n')
 
     # pair-hopping terms:
-    if H_dump:
-        H_dump_file.write('Pair-hopping terms:' + '\n')
-    for s1, s2 in product(spin_names, spin_names):
-        if s1 == s2:
-            continue
-        for a1, a2 in product(range(n_orb), range(n_orb)):
-            if a1 == a2:
+    if pair_hopping:
+        if H_dump:
+            H_dump_file.write('Pair-hopping terms:' + '\n')
+        for s1, s2 in product(spin_names, spin_names):
+            if s1 == s2:
                 continue
-            H_term = 0.5 * J_hund * c_dag(*mkind(s1, a1)) * c_dag(*mkind(s2, a1)) * c(*mkind(s2, a2)) * c(*mkind(s1, a2))
-            H += H_term
+            for a1, a2 in product(range(n_orb), range(n_orb)):
+                if a1 == a2:
+                    continue
+                H_term = 0.5 * J_hund * c_dag(*mkind(s1, a1)) * c_dag(*mkind(s2, a1)) * c(*mkind(s2, a2)) * c(*mkind(s1, a2))
+                H += H_term
 
-            # Dump terms of H
-            if H_dump and not H_term.is_zero():
-                H_dump_file.write('%s' % (mkind(s1, a1),) + '\t')
-                H_dump_file.write('%s' % (mkind(s2, a2),) + '\t')
-                H_dump_file.write(str(-J_hund) + '\n')
+                # Dump terms of H
+                if H_dump and not H_term.is_zero():
+                    H_dump_file.write('%s' % (mkind(s1, a1),) + '\t')
+                    H_dump_file.write('%s' % (mkind(s2, a2),) + '\t')
+                    H_dump_file.write(str(-J_hund) + '\n')
 
     return H
 
