@@ -66,6 +66,12 @@ class MatsubaraFreq:
     def value(self):
         return complex(self)
 
+    def __eq__(self, other):
+        if isinstance(other, MatsubaraFreq):
+            return self.n == other.n and self.beta == other.beta and self.statistic == other.statistic
+        else:
+            return False
+
     def __abs__(self):
         return abs(complex(self))
 
