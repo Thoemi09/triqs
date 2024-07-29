@@ -806,12 +806,10 @@ class Gf(metaclass=AddMethod):
             If flatten_y is True and dim is (1, 1, *) it returns a 1d numpy array.
         """
 
-        if isinstance(self.mesh, meshes.MeshReFreq):
-            X = np.linspace(self.mesh.w_min, self.mesh.w_max, len(self.mesh))
+        if isinstance(self.mesh, (meshes.MeshReFreq, meshes.MeshImTime)):
+            X = self.mesh.values
         elif isinstance(self.mesh, meshes.MeshImFreq):
-            X = np.linspace(self.mesh(self.mesh.first_index()).imag, self.mesh(self.mesh.last_index()).imag, len(self.mesh))
-        elif isinstance(self.mesh, meshes.MeshImTime):
-            X = np.linspace(0, self.mesh.beta, len(self.mesh))
+            X = np.vectorize(lambda x: x.imag)(self.mesh.values)
         else:
             raise AttributeError('input mesh must be either MeshReFreq, MeshImFreq, or MeshImTime')
 
