@@ -64,18 +64,19 @@ def make_mesh(py_type, c_tag, doc="", with_values=True):
     m.add_iterator()
 
     if with_values:
-        m.add_method("PyObject * values()",
-                     calling_pattern = """
-                        static auto cls = pyref::get_class("triqs.gf", "MeshValueGenerator", /* raise_exception */ true);
-                        pyref args = PyTuple_Pack(1, self);
-                        auto result = PyObject_CallObject(cls, args);
-                     """, doc = "A numpy array of all the values of the mesh points")
-        m.add_method(f"{c_tag}::value_t to_value({c_tag}::index_t index)", doc = "index -> value")
+        m.add_property(name = "values",
+            getter = cfunction(calling_pattern="auto result = values(self_c)",
+                signature = "nda::vector<{c_tag}::value_t>()",
+                doc = "A numpy array of all the values of the mesh points"))
+        m.add_method(
+            f"{c_tag}::value_t to_value({c_tag}::index_t index)", doc="index -> value"
+        )
 
     m.add_method_copy()
     m.add_method_copy_from()
 
     return m
+
 
 ########################
 ##   MeshImFreq

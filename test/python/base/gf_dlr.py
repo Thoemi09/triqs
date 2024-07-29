@@ -206,7 +206,7 @@ class test_dlr_mesh(unittest.TestCase):
         beta = 20
         tau_mesh = MeshDLRImTime(beta = beta, statistic = 'Boson', w_max = 2.0, eps = 1e-14, symmetrize = True)
 
-        tau_values = np.fromiter(tau_mesh.values(), dtype=float)
+        tau_values = tau_mesh.values
         assert(np.allclose(tau_values, beta - tau_values[::-1]))
 
         gtau = Gf(mesh = tau_mesh, target_shape = [])
@@ -216,8 +216,8 @@ class test_dlr_mesh(unittest.TestCase):
         gdlr = make_gf_dlr(gtau)
         giw  = make_gf_dlr_imfreq(gdlr)
 
-        iw_values = np.fromiter(giw.mesh.values(), dtype=complex)
-        assert(np.allclose(iw_values, -iw_values[::-1]))
+        iw_values = giw.mesh.values
+        assert(np.array_equal(iw_values, -iw_values[::-1]))
         assert(len(iw_values) % 2 == 1) # odd number of frequencies
 
         assert_gfs_are_close(make_gf_dlr_imtime(make_gf_dlr(giw)), gtau)

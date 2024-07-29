@@ -46,7 +46,7 @@ class test_brillouin_zone(unittest.TestCase):
         
         tol = 1e-9
         
-        for idx, (k, k_val) in enumerate(zip(k_mesh, k_mesh.values())):
+        for idx, (k, k_val) in enumerate(zip(k_mesh, k_mesh.values)):
 
             assert( max(abs(k.value - k_val)) < tol )
             
