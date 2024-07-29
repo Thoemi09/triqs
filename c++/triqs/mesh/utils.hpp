@@ -53,6 +53,15 @@ namespace triqs::mesh {
 
   //------------------------------------------------------------------------
 
+  /// Given a mesh, return an array of the values of the mesh
+  template <Mesh M> [[nodiscard]] nda::vector<typename M::value_t> values(M const &m) {
+    auto res = nda::vector<typename M::value_t>(m.size());
+    for (auto i : range(m.size())) res(i) = m[i].value();
+    return res;
+  }
+
+  //------------------------------------------------------------------------
+
   template <Mesh M> static constexpr bool is_product  = false;
   template <Mesh Ms> static constexpr int n_variables = 1;
 
