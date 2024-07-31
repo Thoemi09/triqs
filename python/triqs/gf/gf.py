@@ -807,9 +807,9 @@ class Gf(metaclass=AddMethod):
         """
 
         if isinstance(self.mesh, (meshes.MeshReFreq, meshes.MeshImTime)):
-            X = self.mesh.values
+            X = self.mesh.values()
         elif isinstance(self.mesh, meshes.MeshImFreq):
-            X = np.vectorize(lambda x: x.imag)(self.mesh.values)
+            X = np.vectorize(lambda x: x.imag)(self.mesh.values())
         else:
             raise AttributeError('input mesh must be either MeshReFreq, MeshImFreq, or MeshImTime')
 

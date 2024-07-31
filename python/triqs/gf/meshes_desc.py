@@ -64,10 +64,11 @@ def make_mesh(py_type, c_tag, doc="", with_values=True):
     m.add_iterator()
 
     if with_values:
-        m.add_property(name = "values",
-            getter = cfunction(calling_pattern="auto result = values(self_c)",
-                signature = "nda::vector<{c_tag}::value_t>()",
-                doc = "A numpy array of all the values of the mesh points"))
+        m.add_method(
+            f"nda::vector<{c_tag}::value_t> values()",
+            calling_pattern="auto result = values(self_c)",
+            doc = "A numpy array of all the values of the mesh points"
+        )
         m.add_method(
             f"{c_tag}::value_t to_value({c_tag}::index_t index)", doc="index -> value"
         )
