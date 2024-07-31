@@ -66,8 +66,7 @@ namespace triqs::mesh {
      *            and number of tau-points [default = false]
      */
     dlr_imtime(double beta, statistic_enum statistic, double w_max, double eps, bool symmetrize = false)
-       : dlr_imtime(beta, statistic, w_max, eps, symmetrize,
-                    cppdlr::build_dlr_rf(w_max * beta, eps, symmetrize)) {}
+       : dlr_imtime(beta, statistic, w_max, eps, symmetrize, cppdlr::build_dlr_rf(w_max * beta, eps, symmetrize)) {}
 
     private:
     dlr_imtime(double beta, statistic_enum statistic, double w_max, double eps, bool symmetrize, nda::vector<double> const &dlr_freq)
@@ -220,6 +219,12 @@ namespace triqs::mesh {
                                  m._w_max, m._eps);
     }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      ar & _beta & _statistic & _w_max & _eps & _symmetrize & _mesh_hash & _dlr;
+    }
+
     // -------------------- HDF5 -------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "MeshDLRImTime"; }
@@ -250,10 +255,10 @@ namespace triqs::mesh {
       auto eps        = h5::read<double>(gr, "eps");
       bool symmetrize = false;
       h5::try_read(gr, "symmetrize", symmetrize);
-      auto _dlr_freq  = h5::read<nda::vector<double>>(gr, "dlr_freq");
-      auto _dlr_it    = h5::read<cppdlr::imtime_ops>(gr, "dlr_it");
-      auto _dlr_if    = h5::read<cppdlr::imfreq_ops>(gr, "dlr_if");
-      m               = dlr_imtime(beta, statistic, w_max, eps, symmetrize, {_dlr_freq, _dlr_it, _dlr_if});
+      auto _dlr_freq = h5::read<nda::vector<double>>(gr, "dlr_freq");
+      auto _dlr_it   = h5::read<cppdlr::imtime_ops>(gr, "dlr_it");
+      auto _dlr_if   = h5::read<cppdlr::imfreq_ops>(gr, "dlr_if");
+      m              = dlr_imtime(beta, statistic, w_max, eps, symmetrize, {_dlr_freq, _dlr_it, _dlr_if});
     }
   };
 

@@ -256,6 +256,12 @@ namespace triqs::mesh {
                                  m.positive_only());
     }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      ar & _beta & _statistic & _n_iw & _opt & _last_index & _first_index & _mesh_hash;
+    }
+
     // -------------------- HDF5 -------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "MeshImFreq"; }

@@ -27,7 +27,6 @@ op = class_(
         arithmetic = ("algebra","with_unit","with_unary_minus","real_or_complex"),
         comparisons="==",
         serializable = "repr",
-        #serializable = "h5",
        )
 
 op.add_constructor(signature="()", doc="create zero operator")

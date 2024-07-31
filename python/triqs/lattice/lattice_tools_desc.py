@@ -24,7 +24,7 @@ bl = class_(py_type = "BravaisLattice",
         is_printable = True,
         hdf5 = True,
         comparisons = "== !=",
-        serializable= "h5",
+        serializable= "tuple",
         doc = """
         Bravais Lattice with given unit vectors and atomic positions
 
@@ -67,7 +67,7 @@ c = class_(
         is_printable = True,
         hdf5 = True,
         comparisons = "== !=",
-        serializable= "h5",
+        serializable= "tuple",
         doc = """
         Brillouin Zone for a given Bravais Lattice
 

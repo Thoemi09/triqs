@@ -138,6 +138,12 @@ namespace triqs::mesh {
       return sout << fmt::format("Legendre mesh with beta = {}, statistic = {}, max_n = {}", m._beta, stat_cstr, m.size());
     }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      ar & _beta & _statistic & _max_n & _mesh_hash;
+    }
+
     // -------------------- HDF5 -------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "MeshLegendre"; }

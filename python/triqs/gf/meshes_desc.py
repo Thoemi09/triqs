@@ -45,7 +45,7 @@ def make_mesh(py_type, c_tag, doc="", with_values=True):
             c_type = "%s"%c_tag,
             c_type_absolute = "triqs::mesh::%s"%c_tag,
             hdf5 = True,
-            serializable= "h5",
+            serializable= "tuple",
             is_printable= True,
             comparisons = "== !=",
             doc = doc

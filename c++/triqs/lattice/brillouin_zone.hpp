@@ -91,6 +91,12 @@ namespace triqs {
         return sout << "Brillouin Zone with " << bz.ndim() << " dimensions and reciprocal matrix " << bz.reciprocal_matrix();
       }
 
+      // -------------------- serialization -------------------
+
+      template <class Archive> void serialize(Archive &ar) { //
+        ar & lattice_ & K_reciprocal & K_reciprocal_inv;
+      }
+
       // -------------------- hdf5 -------------------
 
       [[nodiscard]] static std::string hdf5_format() { return "brillouin_zone"; }

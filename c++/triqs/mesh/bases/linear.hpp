@@ -192,6 +192,12 @@ namespace triqs::mesh::details {
     [[nodiscard]] auto end() const { return r_().end(); }
     [[nodiscard]] auto cend() const { return r_().cend(); }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      ar & L & xmin & xmax & delta_x & delta_x_inv & _mesh_hash;
+    }
+
     protected:
     //  -------------------------- HDF5  --------------------------
 

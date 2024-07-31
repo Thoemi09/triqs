@@ -78,6 +78,13 @@ namespace triqs::mesh {
     /// The associated domain
     [[deprecated("matsubara_time_domain is deprecated")]] [[nodiscard]] matsubara_time_domain domain() const noexcept { return {_beta, _statistic}; }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      static_cast<details::linear<imtime, double> &>(*this).serialize(ar);
+      ar & _beta & _statistic;
+    }
+
     // -------------------- HDF5 -------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "MeshImTime"; }

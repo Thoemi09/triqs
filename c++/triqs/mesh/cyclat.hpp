@@ -208,6 +208,12 @@ namespace triqs::mesh {
     [[nodiscard]] auto end() const { return r_().end(); }
     [[nodiscard]] auto cend() const { return r_().cend(); }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      ar & bl_ & dims_ & size_ & stride1 & stride0 & units_ & units_inv_ & _mesh_hash;
+    }
+
     // -------------- HDF5  --------------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "MeshCyclicLattice"; }

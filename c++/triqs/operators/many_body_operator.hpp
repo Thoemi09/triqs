@@ -66,6 +66,8 @@ namespace triqs {
         //return dagger ? indices <=> b.indices : b.indices <=> indices;
       }
       bool operator==(canonical_ops_t const &b) const { return (*this <=> b) == 0; }
+
+      template <class Archive> void serialize(Archive &ar) { ar & dagger & indices; }
     };
 
     std::ostream &operator<<(std::ostream &os, canonical_ops_t const &op);
@@ -341,6 +343,8 @@ namespace triqs {
           return imag(c);
         });
       }
+
+      template <class Archive> void serialize(Archive &ar) { ar & monomials; }
 
       private:
       // Normalize a monomial and insert into a map

@@ -49,6 +49,12 @@ namespace triqs::mesh {
     /// Largest time in the mesh
     [[nodiscard]] double t_max() const noexcept { return xmax; }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      static_cast<details::linear<retime, double> &>(*this).serialize(ar);
+    }
+
     // -------------------- HDF5 -------------------
 
     ///

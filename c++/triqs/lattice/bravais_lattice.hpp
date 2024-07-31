@@ -125,6 +125,12 @@ namespace triqs::lattice {
       return sout << "Bravais Lattice with dimension " << bl.ndim() << ", units " << bl.units() << ", n_orbitals " << bl.n_orbitals();
     }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      ar & ndim_ & units_ & atom_orb_pos & atom_orb_name;
+    }
+
     // -------------------- hdf5 -------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "bravais_lattice"; }

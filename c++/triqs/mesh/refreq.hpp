@@ -51,6 +51,12 @@ namespace triqs::mesh {
     /// Largest frequency in the mesh
     double w_max() const { return xmax; }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      static_cast<details::linear<refreq, double> &>(*this).serialize(ar);
+    }
+
     // -------------------- HDF5 -------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "MeshReFreq"; }

@@ -119,6 +119,12 @@ namespace triqs::mesh {
 
     friend std::ostream &operator<<(std::ostream &sout, discrete const &m) { return sout << "index mesh of size " << m.size(); }
 
+    // -------------------- serialization -------------------
+
+    template <class Archive> void serialize(Archive &ar) { //
+      ar & L_ & _mesh_hash;
+    }
+
     // -------------------- HDF5 -------------------
 
     [[nodiscard]] static std::string hdf5_format() { return "MeshIndex"; }
