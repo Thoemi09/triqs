@@ -115,3 +115,6 @@ class MatsubaraFreq:
 
     def __str__(self):
         return f"MatsubaraFreq(n: {self.n}, beta: {self.beta}, statistic: {self.statistic})"
+
+    def __repr__(self):
+        return self.__str__()
