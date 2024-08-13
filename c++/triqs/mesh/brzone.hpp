@@ -84,7 +84,7 @@ namespace triqs::mesh {
       if (not is_matrix_diagonal(pm)) throw std::runtime_error{"Non-diagonal periodization matrices are currently not supported."};
     }
 
-    /** 
+    /**
      * Construct a brzone mesh on a given brillouin zone
      * with n_k mesh-points in each reciprocal direction
      * i.e. using a diagonal periodization matrix
@@ -226,7 +226,7 @@ namespace triqs::mesh {
         // calculate k in the brzone basis
         auto ks      = nda::stack_vector<double, 3>{k[0], k[1], k[2]};
         auto k_units = transpose(units_inv_) * ks;
-        auto n       = nda::floor(k_units);
+        auto n       = nda::stack_vector<long, 3>(nda::floor(k_units));
 
         // calculate position relative to neighbors in mesh
         auto w = k_units - n;
