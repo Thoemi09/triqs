@@ -80,8 +80,12 @@ namespace triqs::mesh {
 
     // -------------------- serialization -------------------
 
-    template <class Archive> void serialize(Archive &ar) { //
-      static_cast<details::linear<imtime, double> &>(*this).serialize(ar);
+    void serialize(auto &ar) const {
+      static_cast<details::linear<imtime, double> const &>(*this).serialize(ar);
+      ar & _beta & _statistic;
+    }
+    void deserialize(auto &ar) {
+      static_cast<details::linear<imtime, double> &>(*this).deserialize(ar);
       ar & _beta & _statistic;
     }
 

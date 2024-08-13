@@ -93,9 +93,8 @@ namespace triqs {
 
       // -------------------- serialization -------------------
 
-      template <class Archive> void serialize(Archive &ar) { //
-        ar & lattice_ & K_reciprocal & K_reciprocal_inv;
-      }
+      void serialize(auto &ar) const { ar & lattice_ & K_reciprocal & K_reciprocal_inv; }
+      void deserialize(auto &ar) { ar & lattice_ & K_reciprocal & K_reciprocal_inv; }
 
       // -------------------- hdf5 -------------------
 

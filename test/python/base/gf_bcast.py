@@ -17,51 +17,49 @@
 #
 # Authors: Olivier Parcollet, Nils Wentzell
 
-# Import the Green's functions
-from triqs.gf import GfImFreq, iOmega_n, inverse
+import unittest
+from math import exp
 
-# Create the Matsubara-frequency Green's function and initialize it
-g = GfImFreq(indices = [1], beta = 50, n_points = 1000, name = "imp")
-g << inverse( iOmega_n + 0.5 )
-
+from triqs.gf import Gf, BlockGf, MeshImFreq, MeshImTime, MeshDLRImFreq, iOmega_n, inverse
+from triqs.utility.comparison_tests import assert_gfs_are_close, assert_block_gfs_are_close
 import triqs.utility.mpi as mpi
 
-mpi.bcast(g)
+class test_bcast(unittest.TestCase):
 
+    def test_bcast_imfreq(self):
 
+        iw_mesh = MeshImFreq(beta=10, statistic='Fermion', n_iw=100)
+        g_iw = Gf(mesh = iw_mesh, target_shape = [2, 2])
+        g_iw << inverse(iOmega_n + 0.5)
+        g_iw_bcast = mpi.bcast(g_iw)
+        assert_gfs_are_close(g_iw, g_iw_bcast)
 
-#Block
+    def test_bcast_imtime(self):
 
-from triqs.gf import *
-g1 = GfImFreq(indices = ['eg1','eg2'], beta = 50, n_points = 1000, name = "egBlock")
-g2 = GfImFreq(indices = ['t2g1','t2g2','t2g3'], beta = 50, n_points = 1000, name = "t2gBlock")
-G = BlockGf(name_list = ('eg','t2g'), block_list = (g1,g2), make_copies = False)
+        tau_mesh = MeshImTime(beta=10, statistic='Fermion', n_tau=100)
+        g_tau = Gf(mesh = tau_mesh, target_shape = [2, 2])
+        def onefermion(tau, eps, beta): return -exp(-eps * tau) / (1.0 + exp(-beta * eps))
+        for tau in g_tau.mesh:
+            g_tau[tau] = onefermion(tau, 0.1, 10)
+        g_tau_bcast = mpi.bcast(g_tau)
+        assert_gfs_are_close(g_tau, g_tau_bcast)
 
+    def test_bcast_dlr_iw(self):
 
-mpi.bcast(G)
+        dlr_iw_mesh = MeshDLRImFreq(beta=10, statistic='Fermion', w_max=5.0, eps=1e-10)
+        g_dlr_iw = Gf(mesh = dlr_iw_mesh, target_shape = [2, 2])
+        g_dlr_iw << inverse(iOmega_n + 0.5)
+        g_dlr_iw_bcast = mpi.bcast(g_dlr_iw)
+        assert_gfs_are_close(g_dlr_iw, g_dlr_iw_bcast)
 
+    def test_bcast_block(self):
 
-#imtime 
-from triqs.gf import *
+        iw_mesh = MeshImFreq(beta=10, statistic='Fermion', n_iw=100)
+        g_iw = Gf(mesh = iw_mesh, target_shape = [2, 2])
+        g_iw << inverse(iOmega_n + 0.5)
+        g_bl = BlockGf(name_list = ('bl1','bl2'), block_list = (g_iw, 2*g_iw))
+        g_bl_bcast = mpi.bcast(g_bl)
+        assert_block_gfs_are_close(g_bl, g_bl_bcast)
 
-# A Green's function on the Matsubara axis set to a semicircular
-gw = GfImFreq(indices = [1], beta = 50)
-gw << SemiCircular(half_bandwidth = 1)
-
-# Create an imaginary-time Green's function and plot it
-gt = GfImTime(indices = [1], beta = 50)
-gt << Fourier(gw)
-
-mpi.bcast(gt)
-
-
-##
-
-gt2 = GfImTime(indices = [1], beta = 50)
-
-gt2 = mpi.bcast(gt2)
-
-gw2 = GfImFreq(indices = [1], beta = 50)
-gw2 << Fourier(gt2)
-
-
+if __name__ == '__main__':
+    unittest.main()

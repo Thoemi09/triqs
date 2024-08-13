@@ -121,9 +121,8 @@ namespace triqs::mesh {
 
     // -------------------- serialization -------------------
 
-    template <class Archive> void serialize(Archive &ar) { //
-      ar & L_ & _mesh_hash;
-    }
+    void serialize(auto &ar) const { ar & L_ & _mesh_hash; }
+    void deserialize(auto &ar) { ar & L_ & _mesh_hash; }
 
     // -------------------- HDF5 -------------------
 

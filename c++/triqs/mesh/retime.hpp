@@ -51,9 +51,8 @@ namespace triqs::mesh {
 
     // -------------------- serialization -------------------
 
-    template <class Archive> void serialize(Archive &ar) { //
-      static_cast<details::linear<retime, double> &>(*this).serialize(ar);
-    }
+    void serialize(auto &ar) const { static_cast<details::linear<retime, double> const &>(*this).serialize(ar); }
+    void deserialize(auto &ar) { static_cast<details::linear<retime, double> &>(*this).deserialize(ar); }
 
     // -------------------- HDF5 -------------------
 

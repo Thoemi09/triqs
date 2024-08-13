@@ -216,8 +216,21 @@ namespace triqs::mesh {
 
     // -------------------- serialization -------------------
 
-    template <class Archive> void serialize(Archive &ar) { //
-      ar & _beta & _statistic & _w_max & _eps & _symmetrize & _mesh_hash & _dlr;
+    void serialize(auto &ar) const {
+      EXPECTS(_dlr);
+      ar & _beta & _statistic & _w_max & _eps & _symmetrize & _mesh_hash & _dlr->freq;
+      _dlr->imt.serialize(ar);
+      _dlr->imf.serialize(ar);
+    }
+
+    void deserialize(auto &ar) {
+      nda::vector<double> freq;
+      cppdlr::imtime_ops imt;
+      cppdlr::imfreq_ops imf;
+      ar & _beta & _statistic & _w_max & _eps & _symmetrize & _mesh_hash & freq;
+      imt.deserialize(ar);
+      imf.deserialize(ar);
+      _dlr = std::make_shared<dlr_ops>(dlr_ops{freq, imt, imf});
     }
 
     // -------------------- HDF5 -------------------

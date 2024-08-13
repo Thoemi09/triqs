@@ -127,9 +127,8 @@ namespace triqs::lattice {
 
     // -------------------- serialization -------------------
 
-    template <class Archive> void serialize(Archive &ar) { //
-      ar & ndim_ & units_ & atom_orb_pos & atom_orb_name;
-    }
+    void serialize(auto &ar) const { ar & ndim_ & units_ & atom_orb_pos & atom_orb_name; }
+    void deserialize(auto &ar) { ar & ndim_ & units_ & atom_orb_pos & atom_orb_name; }
 
     // -------------------- hdf5 -------------------
 

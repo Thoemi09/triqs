@@ -194,9 +194,8 @@ namespace triqs::mesh::details {
 
     // -------------------- serialization -------------------
 
-    template <class Archive> void serialize(Archive &ar) { //
-      ar & L & xmin & xmax & delta_x & delta_x_inv & _mesh_hash;
-    }
+    void serialize(auto &ar) const { ar & L & xmin & xmax & delta_x & delta_x_inv & _mesh_hash; }
+    void deserialize(auto &ar) { ar & L & xmin & xmax & delta_x & delta_x_inv & _mesh_hash; }
 
     protected:
     //  -------------------------- HDF5  --------------------------

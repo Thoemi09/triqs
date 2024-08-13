@@ -196,7 +196,8 @@ namespace triqs::stat {
     /// @brief Output stream insertion
     friend std::ostream &operator<<(std::ostream &os, histogram const &h);
 
-    template <class Archive> void serialize(Archive &ar) { ar & a & b & n_bins & _n_data_pts & _n_lost_pts & _data & _step; }
+    void serialize(auto &ar) const { ar & a & b & n_bins & _n_data_pts & _n_lost_pts & _data & _step; }
+    void deserialize(auto &ar) { ar & a & b & n_bins & _n_data_pts & _n_lost_pts & _data & _step; }
   };
 
   //-------------------------------------------------------------------------------

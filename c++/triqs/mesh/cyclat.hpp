@@ -210,9 +210,8 @@ namespace triqs::mesh {
 
     // -------------------- serialization -------------------
 
-    template <class Archive> void serialize(Archive &ar) { //
-      ar & bl_ & dims_ & size_ & stride1 & stride0 & units_ & units_inv_ & _mesh_hash;
-    }
+    void serialize(auto &ar) const { ar & bl_ & dims_ & size_ & stride1 & stride0 & units_ & units_inv_ & _mesh_hash; }
+    void deserialize(auto &ar) { ar & bl_ & dims_ & size_ & stride1 & stride0 & units_ & units_inv_ & _mesh_hash; }
 
     // -------------- HDF5  --------------------------
 
