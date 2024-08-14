@@ -35,6 +35,10 @@ module.add_enum(c_name = "triqs::mesh::imfreq::option",
          c_namespace = "",
          values = ["imfreq::option::all_frequencies","imfreq::option::positive_frequencies_only"])
 
+module.add_enum(c_name = "cppdlr::statistic_t",
+         c_namespace = "",
+         values = ["cppdlr::statistic_t::Boson","cppdlr::statistic_t::Fermion"])
+
 ########################
 ##   Mesh generic
 ########################
