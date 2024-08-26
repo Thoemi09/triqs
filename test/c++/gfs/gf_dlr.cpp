@@ -36,6 +36,46 @@ using std::exp;
 auto onefermion(auto tau, double eps, double beta) { return -exp(-eps * tau) / (1 + exp(-beta * eps)); }
 
 // ------------------------------------------------------------
+// Check mesh accessors
+TEST(Gf, dlr_accessors) {
+
+  double beta  = 5;
+  double w_max = 20.0;
+  double eps   = 1e-10;
+  bool symmetrize = true;
+
+  { // dlr mesh
+  auto g = gf<dlr, matrix_valued>{{beta, Fermion, w_max, eps, symmetrize}, {1, 1}};
+
+  EXPECT_EQ(g.mesh().beta(), beta);
+  EXPECT_EQ(g.mesh().eps(), eps);
+  EXPECT_EQ(g.mesh().w_max(), w_max);
+  EXPECT_EQ(g.mesh().statistic(), Fermion);
+  EXPECT_EQ(g.mesh().symmetrize(), symmetrize);
+  }
+
+  { // dlr_imtime
+  auto g = gf<dlr_imtime, matrix_valued>{{beta, Fermion, w_max, eps, symmetrize}, {1, 1}};
+
+  EXPECT_EQ(g.mesh().beta(), beta);
+  EXPECT_EQ(g.mesh().eps(), eps);
+  EXPECT_EQ(g.mesh().w_max(), w_max);
+  EXPECT_EQ(g.mesh().statistic(), Fermion);
+  EXPECT_EQ(g.mesh().symmetrize(), symmetrize);
+  }
+
+  { // dlr_imfreq
+  auto g = gf<dlr_imfreq, matrix_valued>{{beta, Fermion, w_max, eps, symmetrize}, {1, 1}};
+
+  EXPECT_EQ(g.mesh().beta(), beta);
+  EXPECT_EQ(g.mesh().eps(), eps);
+  EXPECT_EQ(g.mesh().w_max(), w_max);
+  EXPECT_EQ(g.mesh().statistic(), Fermion);
+  EXPECT_EQ(g.mesh().symmetrize(), symmetrize);
+  }
+}
+
+// ------------------------------------------------------------
 // Take a gf in time, go to coeffs, to freq, and back and check evals.
 TEST(Gf, dlr_mat) {
 

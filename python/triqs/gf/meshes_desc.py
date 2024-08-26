@@ -172,6 +172,10 @@ m.add_property(name = "eps",
                getter = cfunction(calling_pattern="double result = self_c.eps()",
                signature = "double()",
                doc = "Representation accuracy"))
+m.add_property(name = "symmetrize",
+               getter = cfunction(calling_pattern="bool result = self_c.symmetrize()",
+               signature = "bool()",
+               doc = "Symmetry grid flag"))
 
 module.add_class(m)
 
@@ -256,6 +260,10 @@ m.add_property(name = "eps",
                getter = cfunction(calling_pattern="double result = self_c.eps()",
                signature = "double()",
                doc = "Representation accuracy"))
+m.add_property(name = "symmetrize",
+               getter = cfunction(calling_pattern="bool result = self_c.symmetrize()",
+               signature = "bool()",
+               doc = "Symmetry grid flag"))
 
 module.add_class(m)
 
@@ -307,6 +315,10 @@ m.add_property(name = "eps",
                getter = cfunction(calling_pattern="double result = self_c.eps()",
                signature = "double()",
                doc = "Representation accuracy"))
+m.add_property(name = "symmetrize",
+               getter = cfunction(calling_pattern="bool result = self_c.symmetrize()",
+               signature = "bool()",
+               doc = "Symmetry grid flag"))
 
 module.add_class(m)
 

@@ -33,18 +33,19 @@ class test_dlr_mesh(unittest.TestCase):
 
     def test_dlr_meshes(self):
 
-        beta, eps, w_max = 1.337, 1e-9, 100.
+        beta, eps, w_max, symmetrize = 1.337, 1e-9, 100., True
 
         MeshTypes = [MeshDLRImTime, MeshDLRImFreq, MeshDLR]
 
         for MeshType in MeshTypes:
 
-            m = MeshType(beta, 'Fermion', w_max, eps)
+            m = MeshType(beta, 'Fermion', w_max, eps, symmetrize)
 
             assert( m.beta == beta )
             assert( m.statistic == 'Fermion' )
             assert( m.eps == eps )
             assert( m.w_max == w_max )
+            assert( m.symmetrize == symmetrize )
 
             mps = np.array([ p.value for p in m ])
 

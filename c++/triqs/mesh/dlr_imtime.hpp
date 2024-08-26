@@ -147,6 +147,9 @@ namespace triqs::mesh {
     /// Representation accuracy
     [[nodiscard]] double eps() const noexcept { return _eps; }
 
+    /// Symmetric grid flag
+    [[nodiscard]] bool symmetrize() const noexcept { return _symmetrize; }
+
     /// The vector of DLR frequencies
     [[nodiscard]] auto const &dlr_freq() const { return _dlr->freq; }
 
