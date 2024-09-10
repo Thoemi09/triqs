@@ -38,7 +38,7 @@ target_compile_definitions(triqs
 )
 
 # This choice should be up to the user..
-if((${CMAKE_SYSTEM_NAME} MATCHES "Darwin") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang"))
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin" AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
  target_compile_options(triqs PUBLIC -stdlib=libc++)
 endif()
 
