@@ -144,7 +144,7 @@ namespace triqs::mc_tools {
      * @param sign_init               The sign of the initial configuration's weight [optional]
      *
      * @return
-     *    
+     *
      *    =  =============================================
      *    0  if the computation has run until the end
      *    1  if it has been stopped by stop_callback
@@ -164,14 +164,14 @@ namespace triqs::mc_tools {
      * @param n_accumulation_cycles   Number of QMC cycles in the accumulation (measures are done after each cycle).
      *                                If negative, the accumulation is done until the stop_callback returns true or signal is received.
      * @param length_cycle            Number of QMC move attempts in one cycle
-     * @param stop_callback 
-     * 
+     * @param stop_callback
+     *
      *        Callback function () -> bool. It is called after each cycle
      *        to and the computation stops when it returns true.
      *        Typically used to set up the time limit, cf doc.
      *
      * @return
-     *     
+     *
      *    =  =============================================
      *    0  if the computation has run until the end
      *    1  if it has been stopped by stop_callback
@@ -287,7 +287,7 @@ namespace triqs::mc_tools {
           // log the error and node number
           std::cerr << "mc_generic: Exception occurs on node " << c.rank() << "\n" << err.what() << std::endl;
           if (rethrow_exception)
-            node_monitor->request_emergency_stop();
+            node_monitor->report_local_event();
           else
             c.abort(2);
         }
@@ -308,7 +308,7 @@ namespace triqs::mc_tools {
         stop_it  = (stop_callback() || triqs::signal_handler::received() || finished);
 
         // Stop if an emergeny occured on any node
-        if (node_monitor) stop_it |= node_monitor->emergency_occured();
+        if (node_monitor) stop_it |= node_monitor->event_on_any_rank();
 
       } // end main NC loop
 
@@ -320,7 +320,7 @@ namespace triqs::mc_tools {
 
       if (node_monitor) {
         node_monitor->finalize_communications();
-        if (node_monitor->emergency_occured()) TRIQS_RUNTIME_ERROR << "mc_generic stops because the calculation raised an exception on one node";
+        if (node_monitor->event_on_any_rank()) TRIQS_RUNTIME_ERROR << "mc_generic stops because the calculation raised an exception on one node";
       }
 
       // final reporting
