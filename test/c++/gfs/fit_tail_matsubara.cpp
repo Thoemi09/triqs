@@ -23,11 +23,11 @@
 
 #include <triqs/test_tools/gfs.hpp>
 
-using namespace triqs::arrays;
+using namespace nda;
 
 TEST(FitTailMatsubara, Basic) { // NOLINT
 
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   double beta = 10;
   int N       = 100;
 
@@ -76,8 +76,8 @@ TEST(FitTailMatsubara, Basic) { // NOLINT
 
 TEST(FitTailMatsubara, Real_F_and_B) { // NOLINT
 
-  triqs::clef::placeholder<0> iw_;
-  triqs::clef::placeholder<0> iW_;
+  nda::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iW_;
   double beta = 10;
   int N       = 100;
 
@@ -109,7 +109,7 @@ TEST(FitTailMatsubara, Real_F_and_B) { // NOLINT
 
 TEST(FitTailMatsubara, Complex) { // NOLINT
 
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   double beta = 10;
   long N      = 200;
 
@@ -133,9 +133,9 @@ TEST(FitTailMatsubara, Complex) { // NOLINT
 
 TEST(FitTailMatsubara, Multivar) { // NOLINT
 
-  triqs::clef::placeholder<0> k_;
-  triqs::clef::placeholder<1> iW_;
-  triqs::clef::placeholder<2> iw_;
+  nda::clef::placeholder<0> k_;
+  nda::clef::placeholder<1> iW_;
+  nda::clef::placeholder<2> iw_;
 
   int N_k     = 4;
   double beta = 10;

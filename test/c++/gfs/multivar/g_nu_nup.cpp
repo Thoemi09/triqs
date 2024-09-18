@@ -18,7 +18,7 @@
 // Authors: Thomas Ayral, Michel Ferrero, Olivier Parcollet, Nils Wentzell
 
 #include <triqs/test_tools/gfs.hpp>
-using namespace triqs::clef;
+using namespace nda::clef;
 
 TEST(Gf, G_nu_nup) {
 
@@ -81,8 +81,8 @@ TEST(BlockGfCartesian, H5_RW_Evaluator) {
 
 TEST(BlockGfCartesian, OutOfBounds) {
   double beta = 1;
-  triqs::clef::placeholder<0> om_;
-  triqs::clef::placeholder<1> nu_;
+  nda::clef::placeholder<0> om_;
+  nda::clef::placeholder<1> nu_;
   auto g_2w =
      gf<prod<imfreq, imfreq>, tensor_valued<3>>{{{beta, Fermion, 5}, {beta, Boson, 5, mesh::imfreq::option::positive_frequencies_only}}, {2, 2, 2}};
   g_2w(om_, nu_) << 1 / (om_ + nu_) * 1 / om_;

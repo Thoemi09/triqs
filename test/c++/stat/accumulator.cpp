@@ -18,7 +18,7 @@
 // Authors: Philipp Dumitrescu, Olivier Parcollet, Nils Wentzell
 
 #include <itertools/itertools.hpp>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #include <triqs/stat/accumulator.hpp>
 #include <triqs/stat/jackknife.hpp>
 #include <triqs/test_tools/arrays.hpp>

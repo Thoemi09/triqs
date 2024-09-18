@@ -18,7 +18,7 @@
 // Authors: Michel Ferrero, Olivier Parcollet, Nils Wentzell
 
 #include <triqs/test_tools/gfs.hpp>
-using triqs::clef::placeholder;
+using nda::clef::placeholder;
 
 TEST(Gf, AutoAssignMatrixGf1) {
 

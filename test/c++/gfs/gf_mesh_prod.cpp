@@ -19,8 +19,9 @@
 
 #include <triqs/test_tools/gfs.hpp>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 
-using namespace triqs::clef;
+using namespace nda::clef;
 using namespace triqs::lattice;
 
 TEST(GfMeshProd, Prod) {

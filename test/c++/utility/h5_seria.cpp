@@ -19,7 +19,7 @@
 // Authors: Michel Ferrero, Igor Krivenko, Olivier Parcollet, Nils Wentzell
 
 #include <triqs/test_tools/arrays.hpp>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #if not H5_VERSION_GE(1, 8, 9)
 int main() {}
 
@@ -28,7 +28,7 @@ int main() {}
 #include <h5/serialization.hpp>
 using h5::deserialize;
 using h5::serialize;
-using namespace triqs::arrays;
+using namespace nda;
 
 TEST(H5Serialize, All) {
 
@@ -39,7 +39,7 @@ TEST(H5Serialize, All) {
 
   auto s2 = serialize(array<double, 1>(10000));
   auto s3 = serialize(array<double, 1>(20000));
-  EXPECT_TRUE(first_dim(s3) < first_dim(s2) * 2); // Test scaling in size with overhead
+  EXPECT_TRUE(s3.shape()[0] < s2.shape()[0] * 2); // Test scaling in size with overhead
 }
 MAKE_MAIN;
 

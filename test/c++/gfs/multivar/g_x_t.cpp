@@ -19,7 +19,7 @@
 
 #include <triqs/test_tools/gfs.hpp>
 
-using namespace triqs::clef;
+using namespace nda::clef;
 using namespace triqs::lattice;
 
 double beta  = 1;

@@ -26,10 +26,10 @@ using triqs::mesh::dlr;
 using triqs::mesh::dlr_imfreq;
 using triqs::mesh::dlr_imtime;
 
-constexpr triqs::clef::placeholder<0> iw_;
-constexpr triqs::clef::placeholder<1> iwp_;
-constexpr triqs::clef::placeholder<2> tau_;
-constexpr triqs::clef::placeholder<3> taup_;
+constexpr nda::clef::placeholder<0> iw_;
+constexpr nda::clef::placeholder<1> iwp_;
+constexpr nda::clef::placeholder<2> tau_;
+constexpr nda::clef::placeholder<3> taup_;
 
 using std::exp;
 

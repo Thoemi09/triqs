@@ -21,10 +21,10 @@
 #include <numeric>
 
 #include <triqs/test_tools/arrays.hpp>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #include <triqs/det_manip/det_manip.hpp>
 #include <nda/linalg/det_and_inverse.hpp>
-namespace arrays = triqs::arrays;
+namespace arrays = nda;
 using _vector    = nda::vector<double>;
 using _matrix    = nda::matrix<double>;
 using triqs::det_manip::det_manip;

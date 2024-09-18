@@ -22,9 +22,9 @@
 // Generic Fourier test function for different ranks
 template <int TARGET_RANK> void test_fourier() {
   double precision = 1e-4;
-  triqs::clef::placeholder<0> k_;
-  triqs::clef::placeholder<1> iOm_;
-  triqs::clef::placeholder<2> iom_;
+  nda::clef::placeholder<0> k_;
+  nda::clef::placeholder<1> iOm_;
+  nda::clef::placeholder<2> iom_;
   double beta = 1;
   int N_iw    = 100;
   int N_iW    = 4;

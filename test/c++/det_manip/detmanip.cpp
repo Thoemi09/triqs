@@ -21,7 +21,7 @@
 #include <triqs/det_manip/det_manip.hpp>
 #include <random>
 #include <nda/linalg/det_and_inverse.hpp>
-//#include <triqs/arrays/asserts.hpp>
+//#include <nda/asserts.hpp>
 #include <iostream>
 #include "./old_test_tool.hpp"
 

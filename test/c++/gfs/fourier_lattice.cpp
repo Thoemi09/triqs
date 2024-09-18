@@ -26,7 +26,7 @@
 // Generic Fourier test function for different ranks
 template <int TARGET_RANK> void test_fourier() {
   double precision = 10e-9;
-  triqs::clef::placeholder<0> r_;
+  nda::clef::placeholder<0> r_;
   int N_k     = 2;
 
   std::array<long, TARGET_RANK> shape{};

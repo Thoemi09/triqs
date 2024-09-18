@@ -25,7 +25,7 @@ TEST(Gf, SimpleAssign) {
 
   static_assert(std::is_constructible<std::complex<double>, matsubara_freq>::value, "oops");
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   auto g  = gf<imfreq>{{10, Fermion, 10}, {2, 2}};
   auto g2 = g;
   auto g3 = g;

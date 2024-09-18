@@ -28,7 +28,7 @@ TEST(Gf, Issue276) {
   auto g  = gf<imfreq, matrix_valued>{{1, Fermion, 6}, {1, 1}};
   auto g2 = gf<imfreq, matrix_valued>{{1, Fermion, 6}, {1, 1}};
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   g(om_) << 1 / (om_ + 3);
   g2(om_) << 1 / (om_ - 3);
 

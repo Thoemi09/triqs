@@ -21,7 +21,7 @@
 
 TEST(Gf, RestrictedView) {
 
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   double beta = 10;
   int N_iw    = 100;
 
@@ -41,7 +41,7 @@ TEST(Gf, RestrictedView) {
 
 TEST(Gf, FitAndReplace) {
 
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   double beta = 10;
   int N_iw    = 100;
 

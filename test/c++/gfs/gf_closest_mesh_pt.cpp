@@ -26,7 +26,7 @@ TEST(ClosestMeshPoint, ReTime) {
 
   auto g = gf<retime, scalar_valued>{{-tmax, tmax, N}};
 
-  triqs::clef::placeholder<0> t_;
+  nda::clef::placeholder<0> t_;
   g(t_) << 1.0 * t_;
 
   for (auto t : g.mesh()) std::cerr << double(t) << std::endl;
@@ -55,7 +55,7 @@ TEST(ClosestMeshPoint, BrZone) {
   auto gk    = gf<brzone, scalar_real_valued>{{bz, Nk}};
 
   // initialize gk with nearest-neighbor tb dispersion
-  triqs::clef::placeholder<1> k_;
+  nda::clef::placeholder<1> k_;
   gk(k_) << -2.0 * (cos(k_[0]) + cos(0.5 * k_[0] + 0.5 * std::sqrt(3.0) * k_[1]) + cos(0.5 * k_[0] - 0.5 * std::sqrt(3.0) * k_[1]));
 
   // check if closest_mesh_pt(k) is k

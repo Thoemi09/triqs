@@ -22,6 +22,7 @@
 
 #include <triqs/test_tools/gfs.hpp>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 
 using namespace triqs::gfs;
 

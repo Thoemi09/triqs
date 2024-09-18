@@ -24,12 +24,13 @@
 #include <triqs/test_tools/arrays.hpp>
 #include <triqs/test_tools/gfs.hpp>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 #include <iostream>
 
 using namespace triqs;
-using namespace triqs::arrays;
+using namespace nda;
 using namespace triqs::gfs;
-using namespace triqs::clef;
+using namespace nda::clef;
 
 mpi::communicator world;
 

@@ -19,12 +19,13 @@
 
 #include <triqs/test_tools/gfs.hpp>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 #include <iostream>
 
 using namespace triqs::gfs;
-using namespace triqs::arrays;
+using namespace nda;
 using namespace triqs::utility;
-using namespace triqs::clef;
+using namespace nda::clef;
 
 namespace std {} // namespace std
 

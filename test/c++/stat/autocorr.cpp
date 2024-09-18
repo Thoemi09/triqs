@@ -23,6 +23,7 @@
 #include <triqs/test_tools/arrays.hpp>
 #include <triqs/stat/accumulator.hpp>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 
 using namespace triqs;
 using namespace triqs::stat;

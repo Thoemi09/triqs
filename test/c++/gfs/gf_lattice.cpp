@@ -28,7 +28,7 @@ using idx_t = std::array<long, 3>;
 using k_t   = std::array<double, 3>;
 
 TEST(Gfs, cyclat) {
-  triqs::clef::placeholder<0> r_;
+  nda::clef::placeholder<0> r_;
 
   auto bl  = bravais_lattice{nda::eye<double>(2)};
   auto m_r = mesh::cyclat{bl, 2};

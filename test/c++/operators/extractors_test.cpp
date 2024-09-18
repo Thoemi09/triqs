@@ -29,7 +29,7 @@
 
 using namespace triqs::operators;
 using namespace triqs::operators::utils;
-using namespace triqs::arrays;
+using namespace nda;
 using namespace triqs::hilbert_space;
 
 using dcomplex = std::complex<double>;

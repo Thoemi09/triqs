@@ -24,8 +24,8 @@
 #include <triqs/test_tools/gfs.hpp>
 
 using namespace triqs::gfs;
-using namespace triqs::clef;
-using namespace triqs::arrays;
+using namespace nda::clef;
+using namespace nda;
 using namespace triqs::lattice;
 
 TEST(GfM, CurryFourier) {

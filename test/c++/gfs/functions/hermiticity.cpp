@@ -24,11 +24,11 @@ using namespace nda;
 
 TEST(hermiticity, symmetrize_and_check) {
 
-  triqs::clef::placeholder<0> iw_;
-  triqs::clef::placeholder<1> i_;
-  triqs::clef::placeholder<2> j_;
-  triqs::clef::placeholder<3> k_;
-  triqs::clef::placeholder<4> l_;
+  nda::clef::placeholder<0> iw_;
+  nda::clef::placeholder<1> i_;
+  nda::clef::placeholder<2> j_;
+  nda::clef::placeholder<3> k_;
+  nda::clef::placeholder<4> l_;
   double beta = 1;
 
   // ============ Test with hermitian Gf

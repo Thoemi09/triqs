@@ -22,9 +22,9 @@
 #endif
 
 #include <triqs/test_tools/gfs.hpp>
-using namespace triqs::clef;
+using namespace nda::clef;
 using namespace triqs::lattice;
-using triqs::clef::placeholder;
+using nda::clef::placeholder;
 
 template <typename Function, typename Mesh> auto sum_gf(Function const &f, Mesh const &m) {
   auto res = make_regular(0 * f(*(m.begin())));

@@ -22,7 +22,7 @@
 // Generic Fourier test function for different ranks
 template <int TARGET_RANK> void test_fourier(statistic_enum statistic) {
   double precision = 1e-8;
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   double beta = 10;
   int N_iw    = 1000;
   int N_tau   = 10000;
@@ -125,7 +125,7 @@ TEST(FourierMatsubara, BosonTensor4) { test_fourier<4>(Boson); }
 
 ///check Fourier on positive-only freqs fails
 TEST(Gfs, FourierMatsubaraAllFreq) {
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   double beta = 1;
   int N_iw    = 10000;
   double E    = 1;

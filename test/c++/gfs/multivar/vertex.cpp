@@ -18,10 +18,10 @@
 // Authors: Michel Ferrero, Olivier Parcollet, Nils Wentzell
 
 #include <triqs/test_tools/gfs.hpp>
-using namespace triqs::clef;
+using namespace nda::clef;
 using namespace triqs::lattice;
 
-using triqs::clef::placeholder;
+using nda::clef::placeholder;
 // scalar valued gf_vertex
 using gf_vertex_t        = gf<prod<imfreq, imfreq, imfreq>, scalar_valued>;
 using gf_vertex_tensor_t = gf<prod<imfreq, imfreq, imfreq>, tensor_valued<3>>;

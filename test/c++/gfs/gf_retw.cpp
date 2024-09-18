@@ -48,8 +48,8 @@ TEST(Gf, Real) {
   for (auto it : Git.mesh()) Git[it] = 1.0 * it;
   for (auto iw : Giw.mesh()) Giw[iw] = 1.0 * iw;
 
-  triqs::clef::placeholder<0> t_;
-  triqs::clef::placeholder<1> w_;
+  nda::clef::placeholder<0> t_;
+  nda::clef::placeholder<1> w_;
   Gt2(t_) << 1.0 * t_;
   Gw2(w_) << 1.0 * w_;
   Git2(t_) << 1.0 * t_;

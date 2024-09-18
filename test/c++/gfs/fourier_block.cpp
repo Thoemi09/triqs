@@ -18,12 +18,13 @@
 // Authors: Olivier Parcollet, Nils Wentzell
 
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 #include <triqs/test_tools/gfs.hpp>
 using namespace triqs::gfs;
 
 template <int TARGET_RANK> void test_fourier() {
   double precision = 1e-7;
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   double beta               = 1;
   int N_iw                  = 1000;
   int N_tau                 = 6 * N_iw + 1;

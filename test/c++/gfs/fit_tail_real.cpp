@@ -19,11 +19,11 @@
 
 #include <triqs/test_tools/gfs.hpp>
 
-using namespace triqs::arrays;
+using namespace nda;
 
 TEST(FitTailReal, Basic) { // NOLINT
 
-  triqs::clef::placeholder<0> w_;
+  nda::clef::placeholder<0> w_;
   double omega_max = 10;
   int L            = 201;
 
@@ -72,7 +72,7 @@ TEST(FitTailReal, Basic) { // NOLINT
 
 TEST(FitTailReal, Complex) { // NOLINT
 
-  triqs::clef::placeholder<0> w_;
+  nda::clef::placeholder<0> w_;
   double omega_max = 100;
   int L            = 201;
 
@@ -96,8 +96,8 @@ TEST(FitTailReal, Complex) { // NOLINT
 
 TEST(FitTailReal, Multivar) { // NOLINT
 
-  triqs::clef::placeholder<0> k_;
-  triqs::clef::placeholder<1> w_;
+  nda::clef::placeholder<0> k_;
+  nda::clef::placeholder<1> w_;
 
   int N_k          = 4;
   double omega_max = 100;

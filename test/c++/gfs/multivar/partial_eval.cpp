@@ -33,9 +33,9 @@ TEST(Gf, PartialEval) {
   int n_re_freq = 10;
   int n_im_freq = 10;
 
-  triqs::clef::placeholder<0> w_;
-  triqs::clef::placeholder<1> wn_;
-  triqs::clef::placeholder<2> tau_;
+  nda::clef::placeholder<0> w_;
+  nda::clef::placeholder<1> wn_;
+  nda::clef::placeholder<2> tau_;
 
   auto G_w     = gf<refreq, scalar_valued>{{wmin, wmax, n_re_freq}};
   auto G_t_tau = gf<prod<retime, imtime>, scalar_valued>{{{tmin, tmax, n_re_time}, {beta, Fermion, n_im_time}}};

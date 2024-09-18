@@ -23,14 +23,14 @@
 #include <triqs/atom_diag/atom_diag.hpp>
 #include <triqs/atom_diag/functions.hpp>
 #include <triqs/atom_diag/gf.hpp>
-//#include <triqs/arrays/blas_lapack/dot.hpp>
+//#include <nda/blas_lapack/dot.hpp>
 
 #include <h5/h5.hpp>
 #include <h5/serialization.hpp>
 
 #include "./hamiltonian.hpp"
 
-using namespace triqs::arrays;
+using namespace nda;
 using namespace triqs::hilbert_space;
 using namespace triqs::atom_diag;
 

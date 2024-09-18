@@ -18,7 +18,7 @@
 // Authors: Michel Ferrero, Olivier Parcollet, Nils Wentzell
 
 #include <triqs/test_tools/gfs.hpp>
-using namespace triqs::clef;
+using namespace nda::clef;
 
 TEST(Gf, G_om_nu_nup) {
 

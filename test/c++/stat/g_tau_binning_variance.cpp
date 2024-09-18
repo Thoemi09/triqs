@@ -20,6 +20,7 @@
 #include <random>
 
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 #include <triqs/stat/accumulator.hpp>
 #include <triqs/stat/jackknife.hpp>
 #include <triqs/test_tools/arrays.hpp>

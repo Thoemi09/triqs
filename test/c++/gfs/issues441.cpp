@@ -24,7 +24,7 @@
 #include <triqs/test_tools/gfs.hpp>
 
 using namespace triqs::gfs;
-using namespace triqs::clef;
+using namespace nda::clef;
 
 placeholder<0> a;
 placeholder<1> b;

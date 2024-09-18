@@ -31,7 +31,7 @@
 #endif
 
 #include <triqs/utility/callbacks.hpp>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #include <triqs/mc_tools/mc_generic.hpp>
 #include <triqs/test_tools/arrays.hpp>
 nda::array<std::complex<double>, 1> make_array(std::complex<double> c) { return {c}; };

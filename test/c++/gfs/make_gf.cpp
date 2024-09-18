@@ -20,7 +20,7 @@
 #include <triqs/test_tools/gfs.hpp>
 #include <iostream>
 using namespace triqs::gfs;
-using namespace triqs::clef;
+using namespace nda::clef;
 
 placeholder<0> iw;
 double beta = 1.0;

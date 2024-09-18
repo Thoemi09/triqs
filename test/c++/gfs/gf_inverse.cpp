@@ -32,7 +32,7 @@ TEST(CtHyb, gf_inverse1) {
   int n_iw    = 1025;
 
   auto G_iw = gf<imfreq>{{beta, Fermion, n_iw}, {1, 1}};
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   G_iw(om_) << om_ - 2.8;
   auto G_iw_inv = G_iw;
   G_iw_inv(om_) << 1. / (om_ - 2.8);
@@ -50,8 +50,8 @@ TEST(CtHyb, gf_inverse2) {
 
   auto G_iw = gf<prod<imfreq, brzone>>{{{beta, Fermion, n_iw}, {bz, nk}}, {1, 1}};
 
-  triqs::clef::placeholder<0> om_;
-  triqs::clef::placeholder<1> k_;
+  nda::clef::placeholder<0> om_;
+  nda::clef::placeholder<1> k_;
 
   G_iw(om_, k_) << om_ - 2 * t * (cos(k_[0]) + cos(k_[1]));
 
@@ -74,9 +74,9 @@ TEST(CtHyb, gf_inverse3) {
 
   auto G_iw = gf<prod<imfreq, imtime, brzone>>{{{beta, Fermion, n_iw}, {beta, Fermion, n_t}, {bz, nk}}, {1, 1}};
 
-  triqs::clef::placeholder<0> om_;
-  triqs::clef::placeholder<2> t_;
-  triqs::clef::placeholder<1> k_;
+  nda::clef::placeholder<0> om_;
+  nda::clef::placeholder<2> t_;
+  nda::clef::placeholder<1> k_;
 
   G_iw(om_, t_, k_) << om_ - 7 * t_ - 2 * t * (cos(k_[0]) + cos(k_[1]));
 

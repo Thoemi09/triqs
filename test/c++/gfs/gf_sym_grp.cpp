@@ -18,6 +18,7 @@
 #include <triqs/test_tools/gfs.hpp>
 #include <triqs/gfs/gf_sym_grp.hpp>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 
 TEST(GfSymGrp, ScalarNoProduct) {
   // some dummy gf

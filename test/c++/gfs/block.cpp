@@ -29,7 +29,7 @@ TEST(Gf, Block) {
   auto G2     = G1;
   auto G3     = G1;
 
-  triqs::clef::placeholder<0> w_;
+  nda::clef::placeholder<0> w_;
   G1(w_) << 1. / (w_ + 2.);
   G2(w_) << 2. / (w_ - 2.);
 
@@ -114,7 +114,7 @@ TEST(Block, Order) {
   double beta = 1;
   auto G1     = gf<imfreq>({beta, Fermion}, {1, 1});
   auto G2     = gf<imfreq>({beta, Fermion}, {1, 1});
-  triqs::clef::placeholder<0> w_;
+  nda::clef::placeholder<0> w_;
   G1(w_) << 1 / (w_ + 2);
   G2(w_) << 1 / (w_ - 2);
 
@@ -132,7 +132,7 @@ TEST(Block, Arithmetic) {
   double beta = 1;
   auto G1     = gf<imfreq>({beta, Fermion}, {2, 2});
   auto G2     = gf<imfreq>({beta, Fermion}, {2, 2});
-  triqs::clef::placeholder<0> w_;
+  nda::clef::placeholder<0> w_;
   G1(w_) << 1 / (w_ + 2);
   G2(w_) << 1 / (w_ - 2);
 

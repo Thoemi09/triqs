@@ -21,7 +21,7 @@
 
 TEST(Gf, Base) {
 
-  triqs::clef::placeholder<0> t_;
+  nda::clef::placeholder<0> t_;
   double beta = 1;
 
   auto Gt = gf<imtime>{{beta, Fermion, 100}, {2, 2}};

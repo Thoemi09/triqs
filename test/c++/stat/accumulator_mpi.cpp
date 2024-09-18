@@ -17,7 +17,7 @@
 
 #include <itertools/itertools.hpp>
 #include <numeric>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #include <triqs/stat/accumulator.hpp>
 #include <triqs/stat/jackknife.hpp>
 #include <triqs/test_tools/arrays.hpp>
@@ -31,6 +31,7 @@
 #include <triqs/test_tools/arrays.hpp>
 #include <triqs/stat/accumulator.hpp>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 
 using namespace triqs::stat;
 using namespace triqs::stat::details;

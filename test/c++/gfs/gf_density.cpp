@@ -27,7 +27,7 @@ TEST(Gf, DensityFermion) {
 
   EXPECT_EQ(G.mesh().positive_only(), 0);
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   G(om_) << 1 / (om_ + 2.3);
 
   auto n = triqs::gfs::density(G);
@@ -45,7 +45,7 @@ TEST(Gf, DensityBoson) {
 
   EXPECT_EQ(G.mesh().positive_only(), 0);
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   G(om_) << 1 / (om_ - 2.3); // nb! need positive energy for a free boson
 
   auto n = triqs::gfs::density(G);
@@ -63,7 +63,7 @@ TEST(Gf, Density_with_not_all_moments) {
 
   EXPECT_EQ(G.mesh().positive_only(), 0);
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
 
   G(om_) << 1.0;
   EXPECT_THROW(triqs::gfs::density(G), triqs::runtime_error);

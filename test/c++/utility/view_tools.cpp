@@ -18,6 +18,7 @@
 // Authors: Olivier Parcollet, Nils Wentzell
 
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 #include <triqs/test_tools/gfs.hpp>
 
 using namespace triqs;
@@ -40,11 +41,11 @@ TEST(ViewTools, PosFreqView) {
 
   double beta  = 1;
   int n_iw     = 100;
-  auto iw_mesh = gf_mesh<imfreq>{beta, Fermion, n_iw};
+  auto iw_mesh = mesh::imfreq{beta, Fermion, n_iw};
 
   // -- Build and Init Green function
   auto g_iw = gf<imfreq, matrix_valued>{iw_mesh, {1, 1}};
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   g_iw(iw_) << 1.0 / (iw_ + 1.0 + 1i);
 
   // -- Test positive_freq_view()

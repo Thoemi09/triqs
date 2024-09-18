@@ -19,11 +19,11 @@
 
 #include <triqs/test_tools/arrays.hpp>
 #include <triqs/stat/histograms.hpp>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #include <triqs/stat/histograms.hpp>
 #include <triqs/test_tools/arrays.hpp>
 using namespace triqs::stat;
-namespace arrays = triqs::arrays;
+namespace arrays = nda;
 
 histogram make_hi1() {
   histogram hi1{0, 10};

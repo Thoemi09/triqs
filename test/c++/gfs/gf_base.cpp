@@ -22,7 +22,7 @@
 
 TEST(Gf, Base) {
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   double beta = 1;
 
   auto G  = gf<imfreq>{{beta, Fermion}, {2, 2}};
@@ -94,7 +94,7 @@ TEST(Gf, RealImag) {
   double beta = 1;
   auto g      = gf<imfreq, matrix_valued>{{beta, Fermion, 100}, {2, 2}};
 
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   g(iw_) << 1 / (iw_ - 2.0);
 
   auto g_re_im = gf<imfreq, matrix_valued>{real(g) + 1i * imag(g)};
@@ -107,7 +107,7 @@ TEST(Gf, EvaluatorMatrix) {
   double beta = 1;
   auto g      = gf<imfreq, matrix_valued>{{beta, Fermion, 100}, {2, 2}};
 
-  triqs::clef::placeholder<0> iw_;
+  nda::clef::placeholder<0> iw_;
   g(iw_) << 1 / (iw_ + 2.3);
   std::cout << g[0] << std::endl;
 
@@ -124,7 +124,7 @@ TEST(Gf, EvaluatorScalar) {
   auto g      = gf<imfreq, scalar_valued>{{beta, Fermion, 100}};
   static_assert(std::is_reference_v<decltype(g[*g.mesh().begin()])>);
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   g(om_) << 1 / (om_ + 2.3);
 
   auto f     = matsubara_freq{120, beta, Fermion};
@@ -139,7 +139,7 @@ TEST(Gf, PhNoInfinity) {
   double beta = 1;
   auto g      = gf<imfreq, matrix_valued>{{beta, Fermion}, {2, 2}};
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
   g(om_) << 1 / (om_ + 2.3);
 }
 
@@ -150,7 +150,7 @@ TEST(Gf, PhNoInfinity_tau) {
   auto g = gf<imtime, matrix_valued>{{beta, Fermion, 10000}, {2, 2}};
 
   using std::exp;
-  triqs::clef::placeholder<0> tau_;
+  nda::clef::placeholder<0> tau_;
   g(tau_) << exp(-a * tau_) / (1 + exp(-beta * a));
 }
 
@@ -179,9 +179,9 @@ TEST(Gf, TargetSpaceLoop) {
   auto g1     = gf<imfreq>{{beta, Fermion}, {2, 2}};
   auto g2     = gf{g1};
 
-  triqs::clef::placeholder<0> iw_;
-  triqs::clef::placeholder<1> i_;
-  triqs::clef::placeholder<2> j_;
+  nda::clef::placeholder<0> iw_;
+  nda::clef::placeholder<1> i_;
+  nda::clef::placeholder<2> j_;
 
   static_assert(!mesh::is_product<decltype(auto{g1.mesh()})>);
   g1[iw_](i_, j_) << 1. / (iw_ + i_ + j_ * 0.1);
@@ -195,8 +195,8 @@ TEST(Gf, TargetSpaceLoop) {
 TEST(Gf, MeshCheck) {
   double beta = 1;
 
-  auto iw_mesh     = gf_mesh<imfreq>{beta, Fermion, 5};
-  auto iw_mesh_big = gf_mesh<imfreq>{beta, Fermion, 10};
+  auto iw_mesh     = mesh::imfreq{beta, Fermion, 5};
+  auto iw_mesh_big = mesh::imfreq{beta, Fermion, 10};
 
   auto g1 = gf<imfreq>{iw_mesh, {1, 1}};
   auto g2 = gf<imfreq>{iw_mesh_big, {1, 1}};
@@ -206,7 +206,7 @@ TEST(Gf, MeshCheck) {
 }
 
 TEST(Gf, EvalSlice) {
-  auto t_mesh = gf_mesh<refreq>({-10., 10., 100});
+  auto t_mesh = mesh::refreq({-10., 10., 100});
   gf<refreq, matrix_valued> g(t_mesh, {2, 2});
 
   auto g5 = g(5.0);
@@ -217,7 +217,7 @@ TEST(Gf, EvalSlice) {
 
 TEST(Gf, TransposeComparison) {
 
-  auto m    = gf_mesh<retime>{0, 10, 99};
+  auto m    = mesh::retime{0, 10, 99};
   auto Ginv = gf<retime>{m, {2, 2}};
 
   placeholder<0> w;

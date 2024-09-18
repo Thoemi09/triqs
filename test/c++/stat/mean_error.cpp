@@ -16,7 +16,7 @@
 // Authors: Philipp D, Olivier Parcollet, Nils Wentzell
 
 #include <triqs/stat/mean_error.hpp>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #include <itertools/itertools.hpp>
 #include <triqs/test_tools/arrays.hpp>
 #include <typeinfo>

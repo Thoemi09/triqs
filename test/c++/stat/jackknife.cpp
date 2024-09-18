@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 #include <triqs/test_tools/arrays.hpp>
 #include <triqs/stat/accumulator.hpp>
 #include <triqs/stat/jackknife.hpp>
@@ -33,7 +34,7 @@
 #include <itertools/itertools.hpp>
 using namespace triqs::stat;
 using namespace triqs::gfs;
-using namespace triqs::arrays;
+using namespace nda;
 using namespace triqs::utility;
 
 int seed = 1567;

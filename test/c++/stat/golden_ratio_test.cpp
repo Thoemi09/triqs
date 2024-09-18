@@ -18,7 +18,7 @@
 #include <triqs/stat/mean_error.hpp>
 #include <triqs/stat/accumulator.hpp>
 #include <triqs/stat/jackknife.hpp>
-#include <triqs/arrays.hpp>
+#include <nda/nda.hpp>
 #include <triqs/test_tools/arrays.hpp>
 #include <typeinfo>
 #include <vector>

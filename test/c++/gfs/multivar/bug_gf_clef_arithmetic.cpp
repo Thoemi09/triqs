@@ -19,7 +19,7 @@
 // Authors: Olivier Parcollet, Hugo U. R. Strand, Nils Wentzell
 
 #include <triqs/test_tools/gfs.hpp>
-using namespace triqs::clef;
+using namespace nda::clef;
 using namespace triqs::lattice;
 
 TEST(Gf, AutoAssignMatrixGf2_product) {

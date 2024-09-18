@@ -19,7 +19,7 @@
 
 #include <triqs/test_tools/gfs.hpp>
 using namespace triqs::gfs;
-using namespace triqs::arrays;
+using namespace nda;
 
 TEST(Gf, PlaceHolder) {
 
@@ -28,7 +28,7 @@ TEST(Gf, PlaceHolder) {
   auto G1     = gf<refreq>{{-wmax, wmax, N}, {1, 1}};
   auto G2     = gf<refreq>{{-wmax, wmax, N * 2}, {1, 1}};
 
-  triqs::clef::placeholder<0> om_;
+  nda::clef::placeholder<0> om_;
 
   G1(om_) << om_ + 0.1i;
   G2(om_) << om_ + 0.1i;

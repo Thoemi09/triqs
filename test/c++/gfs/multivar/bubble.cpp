@@ -20,7 +20,7 @@
 #include <triqs/test_tools/gfs.hpp>
 #include <nda/clef/sum.hpp>
 
-using namespace triqs::clef;
+using namespace nda::clef;
 using namespace triqs::lattice;
 
 // UNTESTED

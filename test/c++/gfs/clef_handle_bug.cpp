@@ -16,12 +16,13 @@
 // Authors: Olivier Parcollet, Nils Wentzell
 
 #include <triqs/gfs.hpp>
+#include <triqs/mesh.hpp>
 
 using namespace triqs::gfs;
 using namespace triqs;
 
-triqs::clef::placeholder<0> iw_;
-triqs::clef::placeholder<1> inu_;
+nda::clef::placeholder<0> iw_;
+nda::clef::placeholder<1> inu_;
 
 int nw      = 3;
 double beta = 20;

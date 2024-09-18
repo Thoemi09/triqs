@@ -26,7 +26,7 @@
 
 using namespace triqs::gfs;
 using namespace triqs::lattice;
-using namespace triqs::arrays;
+using namespace nda;
 
 TEST(tight_binding, h5_read_write) {
   auto units           = nda::matrix<double>{{1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.}};

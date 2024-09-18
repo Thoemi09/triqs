@@ -21,7 +21,7 @@
 
 TEST(Gf, ArrayOf) {
 
-  triqs::clef::placeholder<0> w_;
+  nda::clef::placeholder<0> w_;
   auto agf = array<gf<imfreq>, 2>{2, 3};
   auto bgf = array<gf<imfreq>, 2>{2, 3};
   agf()    = gf<imfreq>{{10.0, Fermion}, {1, 1}};
