@@ -1,5 +1,5 @@
 FROM --platform=linux/amd64 ubuntu:24.04
-ARG LLVM=17
+ARG LLVM=18
 ARG NTHREAD=10
 
 RUN apt-get update && apt-get install -y lsb-release wget software-properties-common && \
@@ -103,7 +103,8 @@ ENV SRC=/src \
     INSTALL=/usr/local \
     PYTHONPATH=/usr/local/lib/python${PYTHON_VERSION}/site-packages \
     CMAKE_PREFIX_PATH=/usr/lib/cmake/triqs \
-    OPENBLAS_NUM_THREADS=1
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1
 
 COPY . ${SRC}/triqs
 WORKDIR ${BUILD}/triqs
@@ -112,4 +113,4 @@ USER build
 RUN cmake $SRC/triqs -DCMAKE_INSTALL_PREFIX=$INSTALL -DCMAKE_BUILD_TYPE=Debug -DPythonSupport=OFF -DMSAN=ON \
     -DLAPACK_LIBRARIES="/opt/libflame/lib/libflame.a;gfortran" -DBLAS_LIBRARIES=/opt/libflame/lib/libflame.a && \
     make -j${NTHREAD}
-RUN make test CTEST_OUTPUT_ON_FAILURE=1 || true
+RUN cd test/c++ && make test CTEST_OUTPUT_ON_FAILURE=1 || true
