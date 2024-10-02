@@ -30,6 +30,8 @@ namespace triqs::lattice {
   class bravais_lattice {
 
     public:
+    using index_t = std::array<long, 3>;
+
     /**
        * Construct a Bravais Lattice with given unit vectors and atomic positions
        *
@@ -66,7 +68,7 @@ namespace triqs::lattice {
 
     struct point_t {
       private:
-      std::array<long, 3> _index       = {0, 0, 0};
+      index_t _index                   = {0, 0, 0};
       bravais_lattice const *_bl_ptr   = nullptr;
       mutable std::optional<r_t> _rval = {};
 
@@ -112,6 +114,11 @@ namespace triqs::lattice {
     template <typename R> r_t real_to_lattice_coordinates(R const &x) const {
       return transpose(units_inv_)(range::all, range(ndim())) * nda::basic_array_view{x}(range(ndim()));
     }
+
+    // -------------------- to_point -------------------
+
+    /// Convert an index to a lattice point
+    [[nodiscard]] point_t to_point(index_t const &index) const { return {index, this}; }
 
     // ------------------- Comparison -------------------
 
