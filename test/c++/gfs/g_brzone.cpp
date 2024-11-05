@@ -56,7 +56,7 @@ TEST(Gfk, base) {
   auto kexp = m[0] + m[1];
   EXPECT_EQ(kexp.index(), (std::array<long, 3>{0, 1, 0}));
   PRINT(make_regular(kexp.value() / pi));
-  EXPECT_COMPLEX_NEAR(gk(kexp), (-2 * (cos(0) + cos(0.2 * M_PI))), 1.e-10);
+  EXPECT_COMPLEX_NEAR(gk(kexp), (-2 * (std::cos(0) + std::cos(0.2 * M_PI))), 1.e-10);
 
   PRINT(gk[closest_mesh_pt(m[1] + m2[1])]);
 }

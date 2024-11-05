@@ -135,7 +135,7 @@ TEST(Gfs, brillouin_zone_triangular) {
   int n_k     = 50;
 
   // Tilted Triangular Lattice
-  auto bl = bravais_lattice{matrix<double>{{1, 0.5}, {0, sqrt(3) / 2.0}}};
+  auto bl = bravais_lattice{matrix<double>{{1, 0.5}, {0, std::sqrt(3) / 2.0}}};
   auto bz = brillouin_zone{bl};
 
   auto k_mesh = mesh::brzone{bz, n_k};

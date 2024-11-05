@@ -90,7 +90,7 @@ gf_bz_imfreq_mat compute_gg(gf_bz_imfreq_mat const &G_k_w) {
 TEST(Gf, Bubble) {
   int nw      = 40;
   int nk      = 6;
-  auto bz     = brillouin_zone{bravais_lattice{{{1., 0.}, {0.5, sqrt(3) / 2.}}}};
+  auto bz     = brillouin_zone{bravais_lattice{{{1., 0.}, {0.5, std::sqrt(3) / 2.}}}};
   double beta = 5, mu = 0.5;
   placeholder<0> k_;
   placeholder<4> inu_;
