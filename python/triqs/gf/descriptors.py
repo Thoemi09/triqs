@@ -24,16 +24,16 @@ r""" """
 from .descriptor_base import *
 from .meshes import MeshImFreq, MeshDLRImFreq, MeshReFreq
 import warnings
-                
+
 #######################################
 
 class OneFermionInTime(Base):
     def __init__ (self, l = 0):
          Base.__init__(self, L=l)
-         
+
     def __call__(self,G):
         L = self.L
-        if G.mesh.TypeGF not in [GF_Type.Imaginary_Time]: 
+        if G.mesh.TypeGF not in [GF_Type.Imaginary_Time]:
             raise TypeError("This initializer is only correct in frequency")
 
         Id = 1. if len(G.target_shape) == 0 else numpy.identity(G.target_shape[0])
@@ -67,9 +67,9 @@ class SemiCircular (Base):
 
      .. math::
         g(z) = \int \frac{A(\omega)}{z-\omega} d\omega
-        
+
     where :math:`A(\omega) = \theta( D - |\omega|) 2 \sqrt{ D^2 - \omega^2}/(\pi D^2)`.
-      
+
     (Only works in combination with frequency Green's functions.)
     """
     def __init__ (self, half_bandwidth, chem_potential=0.):
@@ -81,7 +81,7 @@ semicircle
 """
         Base.__init__(self, half_bandwidth=half_bandwidth, chem_potential=chem_potential)
 
-    def __str__(self): return "SemiCircular(%s, %s)"%self.half_bandwidth, chem_potential 
+    def __str__(self): return "SemiCircular(%s, %s)"%self.half_bandwidth, chem_potential
 
     def __call__(self,G):
         D = self.half_bandwidth
@@ -114,16 +114,16 @@ class Flat (Base):
 
     .. math::
         g(z) = \int \frac{A(\omega)}{z-\omega} d\omega
-        
+
     where :math:`A(\omega) = \theta( D^2 - \omega^2)/(2D)`.
-      
+
     (Only works in combination with frequency Green's functions.)
     """
     def __init__ (self, half_bandwidth):
         """:param half_bandwidth: :math:`D`, the half bandwidth """
         Base.__init__(self, half_bandwidth=half_bandwidth)
 
-    def __str__(self): return "Flat(%s)"%self.half_bandwidth 
+    def __str__(self): return "Flat(%s)"%self.half_bandwidth
 
     def __call__(self,G):
 
