@@ -69,6 +69,11 @@ namespace triqs::gfs {
       return g.mesh();
   }
 
+  /// ---------------------------  target_value_t  ---------------------------------
+
+  // Trait to obtain the type of the values obtained when accessing the Green function with a mesh point
+  template <MemoryGf G> using target_value_t = decltype(std::declval<G>()[std::declval<typename G::mesh_point_t>()]);
+
   /// ---------------------------  tags for some implementation details  ---------------------------------
 
   struct impl_tag {};
