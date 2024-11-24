@@ -82,7 +82,7 @@ namespace triqs::gfs {
 
   // ----------------------  gf -----------------------------------------
   /**
-   * The Green function container. 
+   * The Green function container.
    *
    * @tparam M        The domain of definition
    * @tparam Target   The target domain
@@ -249,7 +249,7 @@ namespace triqs::gfs {
     /**
      *  @param m Mesh
      *  @param shape Target shape
-     * 
+     *
      */
     gf(mesh_t m, target_shape_t shape = {}) : _mesh(std::move(m)), _data(make_data_shape(_mesh, shape)) {}
 
@@ -263,11 +263,11 @@ namespace triqs::gfs {
      */
     explicit gf(gf_const_view<M, Target> const &g) : _mesh(g.mesh()), _data(g.data()) {}
 
-    /** 
+    /**
      *  From any object modeling the :ref:`concept_GreenFunction`.
-     * 
+     *
      *  @tparam G A type modeling :ref:`concept_GreenFunction`.
-     *  @param g 
+     *  @param g
      */
     template <typename G>
     explicit gf(G const &g)
@@ -277,12 +277,12 @@ namespace triqs::gfs {
     } // explicit is very important here.
     // TODO: We would like to refine this, G should have the same mesh, target, at least ...
 
-    /** 
+    /**
      *  from the mpi lazy operation. Cf MPI section !
-     * 
+     *
      *  @tparam Tag
      *  @param l The lazy object
-     *  
+     *
      *  NB : type must be the same, e.g. g2(reduce(g1)) will work only if mesh, Target, Singularity are the same...
      */
     template <typename Tag> gf(mpi::lazy<Tag, gf_const_view<M, Target>> l) : gf() { operator=(l); }
@@ -341,32 +341,23 @@ namespace triqs::gfs {
     //-------------  MPI operation
 
     /**
-     * Performs MPI reduce
-     * @param l The lazy object returned by mpi::reduce
+     * @brief Assignment operator overload for `mpi::lazy` objects.
+     *
+     * @details It assigns the mesh from the GF stored in the lazy object and reduces its data into the data of `this`
+     * object.
+     *
+     * The reduction is performed in-place if the lhs and rhs data point to the same memory location, e.g.
+     *
+     * @code{.cpp}
+     * g = triqs::gfs::lazy_mpi_reduce(g);
+     * @endcode
+     *
+     * @param l `mpi::lazy` object returned by triqs::gfs::lazy_mpi_reduce.
+     * @return Reference to `this` object.
      */
     gf &operator=(mpi::lazy<mpi::tag::reduce, gf_const_view<M, Target>> l) {
       _mesh = l.rhs.mesh();
-      _data = mpi::reduce(l.rhs.data(), l.c, l.root, l.all, l.op);
-      return *this;
-    }
-
-    /**
-     * Performs MPI scatter
-     * @param l The lazy object returned by mpi::scatter
-     */
-    gf &operator=(mpi::lazy<mpi::tag::scatter, gf_const_view<M, Target>> l) {
-      _mesh = mpi::scatter(l.rhs.mesh(), l.c, l.root);
-      _data = mpi::scatter(l.rhs.data(), l.c, l.root, true);
-      return *this;
-    }
-
-    /**
-     * Performs MPI gather
-     * @param l The lazy object returned by mpi::gather
-     */
-    gf &operator=(mpi::lazy<mpi::tag::gather, gf_const_view<M, Target>> l) {
-      _mesh = mpi::gather(l.rhs.mesh(), l.c, l.root);
-      _data = mpi::gather(l.rhs.data(), l.c, l.root, l.all);
+      _data = nda::lazy_mpi_reduce(l.rhs.data(), l.c, l.root, l.all, l.op);
       return *this;
     }
 

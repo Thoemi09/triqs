@@ -18,6 +18,7 @@
 #pragma once
 
 #include "block_gf.hpp"
+#include "../gf/mpi.hpp"
 
 namespace triqs::gfs {
 
@@ -149,24 +150,27 @@ namespace triqs::gfs {
     }
 
     /**
-    * Assignment operator overload specific for mpi::lazy objects (keep before general assignment)
-    * @param l The lazy object returned by reduce
-    */
+     * @brief Assignment operator overload for `mpi::lazy` objects.
+     *
+     * @details It simply calls `mpi::reduce` on each Green's function stored in the lazy object separately and assigns
+     * the result to the corresponding Green's function in `this` object.
+     *
+     * @param l `mpi::lazy` object returned by triqs::gfs::lazy_mpi_reduce.
+     * @return Reference to `this` object.
+     */
     block_gf_view &operator=(mpi::lazy<mpi::tag::reduce, const_view_type> l)
       requires(not IsConst)
     {
-      if (l.rhs.size() != this->size())
-        TRIQS_RUNTIME_ERROR << "mpi reduction of block_gf : size of RHS is incompatible with the size of the view to be assigned to";
-      _block_names = l.rhs.block_names();
       if constexpr (Arity == 1) {
-        for (int i = 0; i < size(); ++i) _glist[i] = mpi::reduce(l.rhs.data()[i], l.c, l.root, l.all, l.op);
+        if (l.rhs.size() != this->size()) TRIQS_RUNTIME_ERROR << "Error in block_gf_view::operator=: Incompatible sizes";
+        for (int i = 0; i < size(); ++i) _glist[i] = triqs::gfs::lazy_mpi_reduce(l.rhs.data()[i], l.c, l.root, l.all, l.op);
       } else {
-
+        if (l.rhs.size1() != this->size1() || l.rhs.size2() != this->size2())
+          TRIQS_RUNTIME_ERROR << "Error in block_gf_view::operator=: Incompatible sizes";
         for (int i = 0; i < size1(); ++i)
-          for (int j = 0; j < size2(); ++j) _glist[i][j] = mpi::reduce(l.rhs.data()[i][j], l.c, l.root, l.all, l.op);
+          for (int j = 0; j < size2(); ++j) _glist[i][j] = triqs::gfs::lazy_mpi_reduce(l.rhs.data()[i][j], l.c, l.root, l.all, l.op);
       }
-      // here we need to enumerate the vector, the mpi::reduce produce a vector<gf>, NOT a gf_view,
-      // we can not overload the = of vector for better API.
+      _block_names = l.rhs.block_names();
       return *this;
     }
 

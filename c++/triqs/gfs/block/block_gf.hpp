@@ -19,6 +19,8 @@
 
 #include "./../../utility/factory.hpp"
 #include "./gf_struct.hpp"
+#include "../gf/gf.hpp"
+#include "../gf/targets.hpp"
 
 namespace triqs::gfs {
 
@@ -244,23 +246,26 @@ namespace triqs::gfs {
       requires(Arity == 2)
        : _block_names(details::_make_block_names2(V.size(), V[0].size())), _glist(std::move(V)) {}
 
+    /// Construct from an `mpi::lazy` object.
+    block_gf(mpi::lazy<mpi::tag::reduce, block_gf::const_view_type> l) : block_gf() { operator=(l); }
+
     /// ---------------  Operator = --------------------
 
     block_gf &operator=(block_gf const &rhs) = default;
     block_gf &operator=(block_gf &&rhs)      = default;
 
     /**
-     * Assignment operator overload specific for mpi::lazy objects (keep before general assignment)
+     * @brief Assignment operator overload for `mpi::lazy` objects.
      *
-     * @param l The lazy object returned by reduce
+     * @details It simply calls `mpi::reduce` on the block Green's function stored in the lazy object and assigns the
+     * result to `this` object.
+     *
+     * @param l `mpi::lazy` object returned by triqs::gfs::lazy_mpi_reduce.
+     * @return Reference to `this` object.
      */
     block_gf &operator=(mpi::lazy<mpi::tag::reduce, block_gf::const_view_type> l) {
-
-      _block_names = l.rhs.block_names();
-      _glist       = mpi::reduce(l.rhs.data(), l.c, l.root, l.all, l.op);
-
+      *this = mpi::reduce(l.rhs, l.c, l.root, l.all, l.op);
       return *this;
-      // reduce of vector produces a new vector of gf, so it is fine here
     }
 
     /**

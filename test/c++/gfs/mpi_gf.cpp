@@ -25,130 +25,186 @@
 #include <triqs/test_tools/gfs.hpp>
 #include <triqs/gfs.hpp>
 #include <triqs/mesh.hpp>
-#include <iostream>
+
+#include <fmt/ranges.h>
 
 using namespace triqs;
 using namespace nda;
 using namespace triqs::gfs;
 using namespace nda::clef;
 
-mpi::communicator world;
-
-class MpiGf : public ::testing::Test {
+class TRIQSGF : public ::testing::Test {
   protected:
-  virtual void SetUp() {
-    g1 = gf<imfreq>{{beta, Fermion, Nfreq}, {1, 1}};
+  using imfreq_cube_mesh_t = prod<imfreq, imfreq, imfreq>;
+  using block_gf1_t        = block_gf<imfreq>;
+  using block_gf2_t        = block2_gf<imfreq_cube_mesh_t, tensor_valued<4>>;
+
+  void SetUp() override {
+    placeholder<0> w_;
+    auto m = imfreq{beta, Fermion, Nfreq};
+    g1     = gf<imfreq>{m, {1, 1}};
     g1(w_) << 1 / (w_ + 1);
 
-    d = array<dcomplex, 3>{g1.data()};
-    for (int u = 0; u < world.size(); ++u) {
-      auto se = itertools::chunk_range(0, 2 * Nfreq, world.size(), u);
-      d(range(se.first, se.second), 0, 0) *= (1 + u);
-    }
+    placeholder<1> w1_;
+    placeholder<2> w2_;
+    placeholder<3> w3_;
+    auto m3 = imfreq_cube_mesh_t{m, m, m};
+    g2      = gf<imfreq_cube_mesh_t, tensor_valued<4>>{m3, {2, 2, 2, 2}};
+    g2(w1_, w2_, w3_) << w1_ + w2_ + w3_;
+    bgf1 = make_block_gf(3, g1);
+    bgf2 = make_block2_gf(2, 2, g2);
   }
 
   double beta = 10;
   int Nfreq   = 8;
-  placeholder<0> w_;
   gf<imfreq> g1;
-  array<dcomplex, 3> d;
+  gf<imfreq_cube_mesh_t, tensor_valued<4>> g2;
+  block_gf1_t bgf1;
+  block_gf2_t bgf2;
+  mpi::communicator world;
 };
 
-//----------------------------------------------
-
-TEST_F(MpiGf, Reduce) {
-  // reduction
-  gf<imfreq> g2 = mpi::reduce(g1, world);
-  // out << g2.data()<<std::endl;
-  if (world.rank() == 0) test_gfs_are_close(g2, gf<imfreq>{world.size() * g1});
+// Check if two (block) Green's functions are close.
+template <typename G1, typename G2> void check_gfs(G1 const &g1, G2 const &g2, double eps = 1e-6) {
+  if constexpr (BlockGreenFunction_v<G1>) {
+    if constexpr (G1::arity == 1)
+      EXPECT_BLOCK_GF_NEAR(g1, g2, eps);
+    else
+      EXPECT_BLOCK2_GF_NEAR(g1, g2, eps);
+  } else {
+    EXPECT_GF_NEAR(g1, g2, eps);
+  }
 }
 
-//----------------------------------------------
-
-TEST_F(MpiGf, AllReduce) {
-  // all reduction
-  gf<imfreq> g2 = mpi::all_reduce(g1, world);
-  test_gfs_are_close(g2, gf<imfreq>{world.size() * g1});
+// Create empty (block) Green's function.
+template <typename G> G make_empty_gf(G const &g) {
+  if constexpr (BlockGreenFunction_v<G>) {
+    auto g_tmp = typename G::g_t{(*g.begin()).mesh()};
+    if constexpr (G::arity == 1)
+      return G{g.size(), g_tmp};
+    else
+      return G{g.size1(), g.size2(), g_tmp};
+  } else {
+    return G{g.mesh()};
+  }
 }
 
-//----------------------------------------------
+// Test MPI broadcast.
+template <typename G> void test_bcast(G const &g, mpi::communicator world) {
+  // broadcast
+  auto g_bcast = make_empty_gf(g);
+  if (world.rank() == 0) g_bcast = g;
+  mpi::broadcast(g_bcast, world);
+  check_gfs(g_bcast, g, 1e-12);
 
-TEST_F(MpiGf, ReduceView) { // all reduction of gf_view
-  gf<imfreq> g2 = g1;
-  g2()          = mpi::all_reduce(g1(), world);
-  test_gfs_are_close(g2, gf<imfreq>{world.size() * g1});
+  // broadcast view
+  g_bcast = g;
+  if (world.rank() != 0) g_bcast *= 0;
+  mpi::broadcast(g_bcast(), world);
+  check_gfs(g_bcast, g, 1e-12);
 }
 
-//----------------------------------------------
+// Test MPI reduce and allreduce.
+template <typename G> void test_reduce(G const &g, mpi::communicator world) {
+  // reduce
+  auto g_red = mpi::reduce(g, world);
+  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
 
-//TEST_F(MpiGf, ScatterGather) {
-//// scatter-gather test with ="
-//auto g2     = g1;
-//g2.data()() = 0.0;
-//auto g2b    = g1;
-//g2          = mpi::scatter(g1);
-//g2(w_) << g2(w_) * (1 + world.rank());
-//g2b = mpi::gather(g2);
-//if (world.rank() == 0) EXPECT_ARRAY_NEAR(d, g2b.data());
-//}
+  // allreduce
+  auto g_red_all = mpi::all_reduce(g, world);
+  check_gfs(g_red_all, G{world.size() * g});
 
-//----------------------------------------------
+  // allreduce view
+  auto g_red_v = mpi::all_reduce(g(), world);
+  check_gfs(g_red_v, G{world.size() * g});
 
-//TEST_F(MpiGf, ScatterGatherWithConstruction) {
-//// scatter-allgather test with construction
-
-//gf<imfreq> g2 = mpi::scatter(g1);
-//g1.data()()   = 0;
-//g2(w_) << g2(w_) * (1 + world.rank());
-
-//g1 = mpi::all_gather(g2);
-//EXPECT_EQ(g1.mesh().first_index_window(), -Nfreq);
-//EXPECT_EQ(g1.mesh().last_index_window(), Nfreq - 1);
-//EXPECT_ARRAY_NEAR(d, g1.data());
-//}
-
-//----------------------------------------------
-
-TEST_F(MpiGf, ReduceBlock) {
-  // reduce with block Green's function
-  block_gf<imfreq> bgf = make_block_gf({g1, g1, g1});
-  test_gfs_are_close(bgf[0], g1);
-
-  block_gf<imfreq> bgf2;
-  auto bgf3 = bgf;
-
-  bgf2 = mpi::reduce(bgf);
-  if (world.rank() == 0) test_gfs_are_close(bgf2[0], gf<imfreq>{world.size() * g1});
-
-  bgf3 = mpi::all_reduce(bgf);
-  test_gfs_are_close(bgf3[0], gf<imfreq>{world.size() * g1});
+  // allreduce const view
+  auto g_red_cv = mpi::all_reduce(typename G::const_view_type{g}, world);
+  check_gfs(g_red_cv, G{world.size() * g});
 }
 
-//----------------------------------------------
+// Test in-place MPI reduce and allreduce.
+template <typename G> void test_reduce_in_place(G const &g, mpi::communicator world) {
+  // in-place reduce
+  auto g_red = g;
+  mpi::reduce_in_place(g_red, world);
+  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
 
-TEST_F(MpiGf, ReduceBlockView) {
-  block_gf<imfreq> bgf = make_block_gf({g1, g1, g1});
+  // in-place allreduce
+  g_red = g;
+  mpi::all_reduce_in_place(g_red, world);
+  check_gfs(g_red, G{world.size() * g});
 
-  auto bgf2 = bgf;
+  // in-place reduce view
+  g_red = g;
+  mpi::reduce_in_place(g_red(), world);
+  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
 
-  bgf2() = mpi::all_reduce(bgf);
-  test_gfs_are_close(bgf2[0], gf<imfreq>{world.size() * g1});
+  // in-place allreduce view
+  g_red = g;
+  mpi::all_reduce_in_place(g_red(), world);
+  check_gfs(g_red, G{world.size() * g});
 }
 
-//----------------------------------------------
+// Test MPI reduce and allreduce.
+template <typename G> void test_lazy_reduce(G const &g, mpi::communicator world) {
+  // lazy reduce
+  G g_red = triqs::gfs::lazy_mpi_reduce(g, world);
+  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
 
-//TEST_F(MpiGf, final) {
-//auto g10 = gf<imfreq>{{beta, Fermion, Nfreq}, {1, 1}};
-//g10(w_) << 1 / (w_ + 1);
+  // lazy in-place allreduce
+  auto g_red_all = g;
+  g_red_all      = triqs::gfs::lazy_mpi_reduce(g_red_all, world, 0, true);
+  check_gfs(g_red_all, G{world.size() * g});
 
-//auto m  = mpi::scatter(mesh::imfreq{beta, Fermion, Nfreq}, world, 0);
-//auto g3 = gf<imfreq>{m, {1, 1}};
-//auto g4 = gf<imfreq>{m, {1, 1}};
-//g3(w_) << 1 / (w_ + 1);
-//g1.data()() = -9;
-//g1(w_) << 1 / (w_ + 1);
-//g4 = mpi::all_gather(g3);
-//EXPECT_ARRAY_NEAR(g4.data(), g10.data());
-//EXPECT_ARRAY_NEAR(g1.data(), g10.data());
-//}
+  // lazy in-place allreduce view
+  auto g_red_v = g;
+  g_red_v()    = triqs::gfs::lazy_mpi_reduce(g_red_v(), world, 0, true);
+  check_gfs(g_red_v, G{world.size() * g});
+
+  // lazy allreduce const view
+  G g_red_cv = triqs::gfs::lazy_mpi_reduce(typename G::const_view_type{g}, world, 0, true);
+  check_gfs(g_red_cv, G{world.size() * g});
+}
+
+TEST_F(TRIQSGF, BroadcastGF) {
+  test_bcast(g1, world);
+  test_bcast(g2, world);
+}
+
+TEST_F(TRIQSGF, ReduceGF) {
+  test_reduce(g1, world);
+  test_reduce(g2, world);
+}
+
+TEST_F(TRIQSGF, ReduceGFInPlace) {
+  test_reduce_in_place(g1, world);
+  test_reduce_in_place(g2, world);
+}
+
+TEST_F(TRIQSGF, LazyReduceGF) {
+  test_lazy_reduce(g1, world);
+  test_lazy_reduce(g2, world);
+}
+
+TEST_F(TRIQSGF, BroadcastBlockGF) {
+  test_bcast(bgf1, world);
+  test_bcast(bgf2, world);
+}
+
+TEST_F(TRIQSGF, ReduceBlockGF) {
+  test_reduce(bgf1, world);
+  test_reduce(bgf2, world);
+}
+
+TEST_F(TRIQSGF, ReduceBlockGFInPlace) {
+  test_reduce_in_place(bgf1, world);
+  test_reduce_in_place(bgf2, world);
+}
+
+TEST_F(TRIQSGF, LazyReduceBlockGF) {
+  test_lazy_reduce(bgf1, world);
+  test_lazy_reduce(bgf2, world);
+}
+
 MAKE_MAIN;
