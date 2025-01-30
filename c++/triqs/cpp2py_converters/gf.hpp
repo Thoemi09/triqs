@@ -147,11 +147,11 @@ namespace cpp2py {
   //   block_gf
   // -----------------------------------
 
-  template <typename M, typename T, int A> struct py_converter<triqs::gfs::block_gf<M, T, C_layout, A>> {
-    using conv_t = py_converter<triqs::gfs::block_gf_view<M, T, C_stride_layout, A>>;
-    using c_type = triqs::gfs::block_gf<M, T, C_layout, A>;
+  template <typename M, typename T, int A> struct py_converter<triqs::gfs::block_gf<M, T, nda::C_layout, A>> {
+    using conv_t = py_converter<triqs::gfs::block_gf_view<M, T, nda::C_stride_layout, A>>;
+    using c_type = triqs::gfs::block_gf<M, T, nda::C_layout, A>;
 
-    static PyObject *c2py(triqs::gfs::block_gf_view<M, T, C_stride_layout, A> g) { return conv_t::c2py(g); }
+    static PyObject *c2py(triqs::gfs::block_gf_view<M, T, nda::C_stride_layout, A> g) { return conv_t::c2py(g); }
     static bool is_convertible(PyObject *ob, bool raise_exception) { return conv_t::is_convertible(ob, raise_exception); }
     static c_type py2c(PyObject *ob) { return c_type{conv_t::py2c(ob)}; }
   };
@@ -160,9 +160,9 @@ namespace cpp2py {
   //   block_gf_const_view
   // -----------------------------------
 
-  template <typename M, typename T, int A> struct py_converter<triqs::gfs::block_gf_const_view<M, T, C_stride_layout, A>> {
-    using conv_t = py_converter<triqs::gfs::block_gf_view<M, T, C_stride_layout, A>>;
-    using c_type = triqs::gfs::block_gf_const_view<M, T, C_stride_layout, A>;
+  template <typename M, typename T, int A> struct py_converter<triqs::gfs::block_gf_const_view<M, T, nda::C_stride_layout, A>> {
+    using conv_t = py_converter<triqs::gfs::block_gf_view<M, T, nda::C_stride_layout, A>>;
+    using c_type = triqs::gfs::block_gf_const_view<M, T, nda::C_stride_layout, A>;
 
     static PyObject *c2py(c_type g) = delete; // You can not convert a C++ const_view to a Python Gf ! Violates const correctness.
     static bool is_convertible(PyObject *ob, bool raise_exception) { return conv_t::is_convertible(ob, raise_exception); }

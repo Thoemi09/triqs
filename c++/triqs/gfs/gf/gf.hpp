@@ -25,10 +25,11 @@ namespace triqs::gfs {
    *   Forward Declaration of the main types : gf, gf_view, gf_const_view
    *-----------------------------------------------------------------------*/
   using nda::C_layout;
+  using nda::C_stride_layout;
 
-  template <Mesh M, typename Target = matrix_valued, typename Layout = nda::C_layout> class gf;
-  template <Mesh M, typename Target = matrix_valued, typename Layout = nda::C_stride_layout> class gf_view;
-  template <Mesh M, typename Target = matrix_valued, typename Layout = nda::C_stride_layout> class gf_const_view;
+  template <Mesh M, typename Target = matrix_valued, typename Layout = C_layout> class gf;
+  template <Mesh M, typename Target = matrix_valued, typename Layout = C_stride_layout> class gf_view;
+  template <Mesh M, typename Target = matrix_valued, typename Layout = C_stride_layout> class gf_const_view;
 
   /*----------------------------------------------------------
    *   Traits
@@ -378,7 +379,7 @@ namespace triqs::gfs {
    *-----------------------------------------------------------------------*/
 
   // Deduce gf type from a Mesh and a Data array
-  template <Mesh M, MemoryArray DataArray> gf(M, DataArray) -> gf<M, target_from_array<DataArray, n_variables<M>>>;
+  template <Mesh M, nda::MemoryArray DataArray> gf(M, DataArray) -> gf<M, target_from_array<DataArray, n_variables<M>>>;
 
   // Deduce gf type from a Mesh and a Data array
   template <Mesh M, std::integral I, size_t R> gf(M, std::array<I, R>) -> gf<M, typename _target_from_type_rank<dcomplex, R>::type>;
