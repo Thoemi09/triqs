@@ -22,13 +22,10 @@
 #include <string>
 
 #include <h5/h5.hpp>
+#include <nda/concepts.hpp>
 
 namespace triqs {
-  /**
-   * @brief True iif T is same_as any U 
-   */
-  template <typename T, typename... U>
-  concept any_of = (std::same_as<T, U> || ...);
+  using nda::AnyOf;
 } // namespace triqs
 
 namespace triqs::mesh {
@@ -47,10 +44,10 @@ namespace triqs::mesh {
     typename MP::mesh_t;
 
     // The associated index, e.g. Matsubara Index or a long
-    { mp.index() } -> any_of<typename MP::mesh_t::index_t, typename MP::mesh_t::index_t const &>;
+    { mp.index() } -> AnyOf<typename MP::mesh_t::index_t, typename MP::mesh_t::index_t const &>;
 
     // The index into the data array
-    { mp.data_index() } -> any_of<typename MP::mesh_t::data_index_t, typename MP::mesh_t::data_index_t const &>;
+    { mp.data_index() } -> AnyOf<typename MP::mesh_t::data_index_t, typename MP::mesh_t::data_index_t const &>;
 
     // Hash for easy checking of MeshPoint and Mesh compatibility
     { mp.mesh_hash() } -> std::same_as<uint64_t>;
@@ -109,7 +106,7 @@ namespace triqs::mesh {
     { m.to_value(index) } -> std::same_as<typename M::value_t>; // index -> value
 
     // Mesh Points can return their value and are castable
-    { (*std::begin(m)).value() } -> any_of<typename M::value_t, typename M::value_t const &>;
+    { (*std::begin(m)).value() } -> AnyOf<typename M::value_t, typename M::value_t const &>;
     { static_cast<typename M::value_t>(*std::begin(m)) };
   };
 

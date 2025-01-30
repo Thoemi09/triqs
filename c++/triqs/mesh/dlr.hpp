@@ -94,7 +94,7 @@ namespace triqs::mesh {
     friend struct dlr_imfreq;
 
     public:
-    template <any_of<dlr_imtime, dlr_imfreq, dlr> M>
+    template <AnyOf<dlr_imtime, dlr_imfreq, dlr> M>
     explicit dlr(M const &m) : _beta(m._beta), _statistic(m._statistic), _w_max(m._w_max), _eps(m._eps), _symmetrize(m._symmetrize), _dlr(m._dlr) {
       if constexpr (std::is_same_v<M, dlr>)
         _mesh_hash = m._mesh_hash;
