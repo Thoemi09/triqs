@@ -100,7 +100,7 @@ template <typename G> void test_bcast(G const &g, mpi::communicator world) {
   // broadcast view
   g_bcast = g;
   if (world.rank() != 0) g_bcast *= 0;
-  mpi::broadcast(g_bcast(), world);
+  mpi::broadcast(g_bcast, world);
   check_gfs(g_bcast, g, 1e-12);
 }
 

@@ -37,6 +37,7 @@ namespace triqs::gfs {
    * @param root Rank of the root process.
    */
   template <MemoryGf G> void mpi_broadcast(G &&g, mpi::communicator c = {}, int root = 0) { // NOLINT (temporary views are allowed)
+    mpi::broadcast(g.mesh(), c, root);
     mpi::broadcast(g.data(), c, root);
   }
 
@@ -61,6 +62,7 @@ namespace triqs::gfs {
   template <MemoryGf G>
   void mpi_reduce_in_place(G &&g, mpi::communicator c = {}, int root = 0, bool all = false, // NOLINT (temporary views are allowed)
                            MPI_Op op = MPI_SUM) {
+    EXPECTS(mpi::all_equal(g.mesh().mesh_hash(), c));
     mpi::reduce_in_place(g.data(), c, root, all, op);
   }
 

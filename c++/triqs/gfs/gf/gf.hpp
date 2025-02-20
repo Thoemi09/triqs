@@ -156,7 +156,10 @@ namespace triqs::gfs {
     // ------------- Accessors -----------------------------
 
     /// Access the  mesh
-    mesh_t const &mesh() const { return _mesh; }
+    mesh_t &mesh() { return _mesh; }
+
+    /// Access the mesh (const)
+    mesh_t const &mesh() const & { return _mesh; }
 
     // DOC : fix data type here array<scalar_t, data_rank> to avoid multiply type in visible part
 

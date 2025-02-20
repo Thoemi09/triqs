@@ -92,7 +92,8 @@ namespace triqs::gfs {
     // ------------- Accessors -----------------------------
 
     /// Access the  mesh
-    mesh_t const &mesh() const { return _mesh; }
+    mesh_t &mesh() & { return _mesh; }
+    mesh_t const &mesh() const & { return _mesh; }
 
     // DOC : fix data type here array<scalar_t, data_rank> to avoid multiply type in visible part
 
@@ -258,6 +259,7 @@ namespace triqs::gfs {
      * @return Reference to `this` object.
      */
     gf_view &operator=(mpi::lazy<mpi::tag::reduce, gf_const_view<M, Target>> l) {
+      // Do we really want to change the mesh here?
       _mesh = l.rhs.mesh();
       _data = nda::lazy_mpi_reduce(l.rhs.data(), l.c, l.root, l.all, l.op);
       return *this;

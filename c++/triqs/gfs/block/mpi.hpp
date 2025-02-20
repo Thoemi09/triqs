@@ -58,21 +58,10 @@ namespace triqs::gfs {
   template <typename G>
     requires(BlockGreenFunction_v<G>)
   void mpi_broadcast(G &&bg, mpi::communicator c = {}, int root = 0) { // NOLINT (temporary views are allowed)
-    // vector broadcast performs a resize, which does not make sense for views
     if constexpr (std::decay_t<G>::is_view) {
-      // for views, broadcast each GF separately
       if (not detail::have_mpi_equal_shape(bg, c)) TRIQS_RUNTIME_ERROR << "Error in triqs::gfs::mpi_broadcast: block_gf_view sizes are not equal.";
-      if constexpr (G::arity == 1) {
-        for (auto &g : bg.data()) mpi::broadcast(g, c, root);
-      } else {
-        for (auto &vec : bg.data()) {
-          for (auto &g : vec) mpi::broadcast(g, c, root);
-        }
-      }
-    } else {
-      // for non-views, we can broadcast the whole vector (of vectors) of GFs
-      mpi::broadcast(bg.data(), c, root);
     }
+    mpi::broadcast(bg.data(), c, root);
   }
 
   /**
@@ -122,6 +111,7 @@ namespace triqs::gfs {
     // reduce only the data
     auto data = typename G::regular_type::data_t{};
     if constexpr (G::is_view) {
+      // Why do we treat views and non-views differently?
       // for views, reduce each GF separately
       if (not detail::have_mpi_equal_shape(bg, c)) TRIQS_RUNTIME_ERROR << "Error in triqs::gfs::mpi_reduce: block_gf_view shapes are not equal.";
       if constexpr (G::arity == 1) {
