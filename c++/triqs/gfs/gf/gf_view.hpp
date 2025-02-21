@@ -92,8 +92,7 @@ namespace triqs::gfs {
     // ------------- Accessors -----------------------------
 
     /// Access the  mesh
-    mesh_t &mesh() & { return _mesh; }
-    mesh_t const &mesh() const & { return _mesh; }
+    mesh_t const &mesh() const { return _mesh; }
 
     // DOC : fix data type here array<scalar_t, data_rank> to avoid multiply type in visible part
 
@@ -247,7 +246,7 @@ namespace triqs::gfs {
      * @brief Assignment operator overload for `mpi::lazy` objects.
      *
      * @details It assigns the mesh from the GF stored in the lazy object and reduces its data into the data of `this`
-     * object.
+     * object. The meshes are expected to be the same on all processes.
      *
      * The reduction is performed in-place if the lhs and rhs data point to the same memory location, e.g.
      *
@@ -259,6 +258,7 @@ namespace triqs::gfs {
      * @return Reference to `this` object.
      */
     gf_view &operator=(mpi::lazy<mpi::tag::reduce, gf_const_view<M, Target>> l) {
+      EXPECTS(mpi::all_equal(l.rhs.mesh().mesh_hash(), l.c));
       // Do we really want to change the mesh here?
       _mesh = l.rhs.mesh();
       _data = nda::lazy_mpi_reduce(l.rhs.data(), l.c, l.root, l.all, l.op);

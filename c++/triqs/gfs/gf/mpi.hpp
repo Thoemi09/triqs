@@ -36,8 +36,8 @@ namespace triqs::gfs {
    * @param c `mpi::communicator` object.
    * @param root Rank of the root process.
    */
-  template <MemoryGf G> void mpi_broadcast(G &&g, mpi::communicator c = {}, int root = 0) { // NOLINT (temporary views are allowed)
-    mpi::broadcast(g.mesh(), c, root);
+  template <MemoryGf G> void mpi_broadcast(G &&g, mpi::communicator c, int root) { // NOLINT (temporary views are allowed)
+    mpi::broadcast(g._mesh, c, root);
     mpi::broadcast(g.data(), c, root);
   }
 
@@ -50,7 +50,7 @@ namespace triqs::gfs {
    *
    * It simply calls `mpi::reduce_in_place` on the data of the GF, i.e. the nda array/view object.
    *
-   * @note It does not check if the mesh is the same on all processes.
+   * The meshes are expected to be the same on all processes.
    *
    * @tparam G triqs::gfs::MemoryGf type.
    * @param g GF (view) to be reduced (into).
@@ -75,7 +75,7 @@ namespace triqs::gfs {
    * On receiving processes, the function returns a new GF object with the reduced data. On non-receiving processes, it
    * returns a default constructed GF object.
    *
-   * @note It does not check if the mesh is the same on all processes.
+   * The meshes are expected to be the same on all processes.
    *
    * @tparam G triqs::gfs::MemoryGf type.
    * @param g GF (view) to be reduced.
@@ -86,6 +86,7 @@ namespace triqs::gfs {
    * @return A triqs::gfs::gf object with the reduced data.
    */
   template <MemoryGf G> auto mpi_reduce(G const &g, mpi::communicator c = {}, int root = 0, bool all = false, MPI_Op op = MPI_SUM) {
+    EXPECTS(mpi::all_equal(g.mesh().mesh_hash(), c));
     using return_t = typename G::regular_type;
     auto res       = return_t{};
     if (c.rank() == root || all) res = return_t{g.mesh(), g.target_shape()};
