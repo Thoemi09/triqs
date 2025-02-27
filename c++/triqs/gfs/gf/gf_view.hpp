@@ -245,10 +245,15 @@ namespace triqs::gfs {
     /**
      * @brief Assignment operator overload for `mpi::lazy` objects.
      *
-     * @details It assigns the mesh from the GF stored in the lazy object and reduces its data into the data of `this`
-     * object. The meshes are expected to be the same on all processes.
+     * @details The assignment depends on the MPI rank and whether it receives the data or not:
+     * - On receiving ranks, it assigns the reduced data from the GF in the lazy object.
+     * - On non-receiving ranks, it assigns an empty data array.
      *
-     * The reduction is performed in-place if the lhs and rhs data point to the same memory location, e.g.
+     * The GFs in the lazy objects are expected to have the same mesh on all processes. The mesh on receiving ranks is
+     * not modified but it is expected to be the same as the one in the lazy object.
+     *
+     * The reduction is performed in-place if the data of the left hand side and right hand side operand point to the
+     * same memory location, e.g.
      *
      * @code{.cpp}
      * g = triqs::gfs::lazy_mpi_reduce(g);
@@ -259,8 +264,7 @@ namespace triqs::gfs {
      */
     gf_view &operator=(mpi::lazy<mpi::tag::reduce, gf_const_view<M, Target>> l) {
       EXPECTS(mpi::all_equal(l.rhs.mesh().mesh_hash(), l.c));
-      // Do we really want to change the mesh here?
-      _mesh = l.rhs.mesh();
+      if (l.all || l.c.rank() == l.root) { EXPECTS(mesh().mesh_hash() == l.rhs.mesh().mesh_hash()); }
       _data = nda::lazy_mpi_reduce(l.rhs.data(), l.c, l.root, l.all, l.op);
       return *this;
     }

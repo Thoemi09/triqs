@@ -174,6 +174,3 @@ friend void h5_read(h5::group fg, std::string const &subgroup_name, this_t &g) {
 
 /// IO
 friend std::ostream &operator<<(std::ostream &out, this_t const &) { return out << "this_t"; }
-
-// Friend declaration.
-template <MemoryGf G> friend void mpi_broadcast(G &&, mpi::communicator, int root);

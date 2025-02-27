@@ -20,6 +20,7 @@
 #include "./../../utility/factory.hpp"
 #include "./gf_struct.hpp"
 #include "../gf/gf.hpp"
+#include "../gf/mpi.hpp"
 #include "../gf/targets.hpp"
 
 namespace triqs::gfs {
@@ -83,6 +84,15 @@ namespace triqs::gfs {
 
   // The trait that "marks" the Green function
   TRIQS_DEFINE_CONCEPT_AND_ASSOCIATED_TRAIT(BlockGreenFunction);
+
+  // Forward declaration.
+  template <typename G>
+    requires(BlockGreenFunction_v<G>)
+  void mpi_broadcast(G &&, mpi::communicator c = {}, int root = 0);
+
+  template <typename G1, typename G2>
+    requires(BlockGreenFunction_v<G1> and BlockGreenFunction_v<G2>)
+  void mpi_reduce_capi(G1 const &, G2 &&, mpi::communicator c = {}, int root = 0, bool all = false, MPI_Op op = MPI_SUM);
 
   // ------------- Helper Types -----------------------------
 
@@ -257,8 +267,8 @@ namespace triqs::gfs {
     /**
      * @brief Assignment operator overload for `mpi::lazy` objects.
      *
-     * @details It simply calls `mpi::reduce` on the block Green's function stored in the lazy object and assigns the
-     * result to `this` object.
+     * @details It simply calls `mpi::reduce` on the block GF stored in the lazy object and assigns the result to `this`
+     * object.
      *
      * @param l `mpi::lazy` object returned by triqs::gfs::lazy_mpi_reduce.
      * @return Reference to `this` object.
@@ -299,6 +309,15 @@ namespace triqs::gfs {
     //----------------------------- print  -----------------------------
 
     friend std::ostream &operator<<(std::ostream &out, block_gf const &) { return out << "block_gf"; }
+
+    // Friend declarations.
+    template <typename G>
+      requires(BlockGreenFunction_v<G>)
+    friend void mpi_broadcast(G &&, mpi::communicator c, int root);
+
+    template <typename G1, typename G2>
+      requires(BlockGreenFunction_v<G1> and BlockGreenFunction_v<G2>)
+    friend void mpi_reduce_capi(G1 const &, G2 &&, mpi::communicator, int, bool, MPI_Op);
 
     // Common code for gf, gf_view, gf_const_view
 #include "./_block_gf_view_common.hpp"

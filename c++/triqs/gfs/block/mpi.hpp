@@ -15,13 +15,22 @@
 //
 // Authors: Michel Ferrero, Olivier Parcollet, Nils Wentzell
 
+/**
+ * @file
+ * @brief Provides MPI routines for block Green's function objects.
+ */
+
 #pragma once
 
 #include "./block_gf.hpp"
 #include "../../utility/exceptions.hpp"
 
+#include <itertools/itertools.hpp>
 #include <mpi/mpi.hpp>
 
+#include <cstddef>
+#include <numeric>
+#include <string>
 #include <type_traits>
 
 namespace triqs::gfs {
@@ -37,18 +46,29 @@ namespace triqs::gfs {
       }
     }
 
+    // Resize a vector of regular GFs or check if the size of a vector of GF views is correct.
+    template <bool is_view> void resize_or_check_if_view(auto &g_vec, int size) {
+      if constexpr (is_view) {
+        if (g_vec.size() != size) TRIQS_RUNTIME_ERROR << "Error in triqs::gfs::detail::resize_or_check_if_view: Vector of GF views has wrong size";
+      } else {
+        g_vec.resize(size);
+      }
+    }
+
+    // Hash the block names for comparison.
+    template <typename G> std::size_t hash_names(G const &bg) {
+      auto view = itertools::transform(bg.block_names(), [](auto const &name) { return std::hash<std::string>{}(name); });
+      return std::accumulate(view.begin(), view.end(), std::size_t{0});
+    }
+
   } // namespace detail
 
   /**
    * @brief Implementation of an MPI broadcast for triqs::gfs::block_gf and triqs::gfs::block_gf_view types.
    *
-   * @details For triqs::gfs::block_gf objects, it broadcasts the whole vector (of vectors) of GFs. For
-   * triqs::gfs::block_gf_view objects, it broadcasts each GF separately.
-   *
-   * It throws an exception if the sizes of triqs::gfs::block_gf_view objects are not equal on all processes.
-   *
-   * @note It only broadcasts the data of the block GFs. It does not check if the mesh or the block names are the same
-   * on all processes.
+   * @details It simply broadcasts the vector (of vectors) of GF objects. Furthermore,
+   * - for non-view block GFs, it broadcasts the vector (of vectors) of block names and
+   * - for views, it expects the block names to be the same on all processes.
    *
    * @tparam G Block GF type.
    * @param bg Block GF (view) to be broadcasted from/into.
@@ -57,11 +77,89 @@ namespace triqs::gfs {
    */
   template <typename G>
     requires(BlockGreenFunction_v<G>)
-  void mpi_broadcast(G &&bg, mpi::communicator c = {}, int root = 0) { // NOLINT (temporary views are allowed)
-    if constexpr (std::decay_t<G>::is_view) {
-      if (not detail::have_mpi_equal_shape(bg, c)) TRIQS_RUNTIME_ERROR << "Error in triqs::gfs::mpi_broadcast: block_gf_view sizes are not equal.";
+  void mpi_broadcast(G &&bg, mpi::communicator c, int root) { // NOLINT (temporary views are allowed)
+    constexpr bool is_view = std::decay_t<G>::is_view;
+
+    // broadcast block names
+    if constexpr (!is_view) {
+      // for non-view block GFs, we broadcast the block names directly into the block GF
+      mpi::broadcast(bg._block_names, c, root);
+    } else {
+      // for views, we keep the block names in the block GF but check that they are the same as on the root process
+      auto names = bg.block_names();
+      mpi::broadcast(names, c, root);
+      // should we throw here instead?
+      EXPECTS(bg.block_names() == names);
     }
+
+    // broadcast data
     mpi::broadcast(bg.data(), c, root);
+  }
+
+  /**
+   * @brief Implementation of an MPI reduce for triqs::gfs::block_gf and triqs::gfs::block_gf_view types using a C-style
+   * API.
+   *
+   * @details The function reduces input Block GFs (views) from all processes in the given communicator and makes the
+   * result available on the root process (`all == false`) or on all processes (`all == true`).
+   *
+   * It throws an exception if the input block GFs on all processes and the output block GF views on receiving processes
+   * do not have the same shape.
+   *
+   * The block names of the input block GFs on all processes and of output block GF views on receiving processes are
+   * expected to be the same.
+   *
+   * The content of the output block GF depends on the MPI rank and whether it receives the data or not:
+   * - On receiving ranks, it contains the reduced GF objects obtained by calling triqs::gfs::mpi_reduce_capi on each
+   * GF separately and the same block names as the input block GF (the block names are assigned for non-views but for
+   * views, it is expected that they already have the correct block names).
+   * - On non-receiving ranks, the output block GF is ignored and left unchanged.
+   *
+   * @tparam G1 Block GF type.
+   * @tparam G2 Block GF type.
+   * @param bg_in Block GF (view) to be reduced.
+   * @param bg_out Block GF (view) to be reduced into.
+   * @param comm `mpi::communicator` object.
+   * @param root Rank of the root process.
+   * @param all Should all processes receive the result of the reduction.
+   * @param op MPI reduction operation.
+   */
+  template <typename G1, typename G2>
+    requires(BlockGreenFunction_v<G1> and BlockGreenFunction_v<G2>)
+  void mpi_reduce_capi(G1 const &bg_in, G2 &&bg_out, mpi::communicator c, int root, // NOLINT (temporary views are allowed here)
+                       bool all, MPI_Op op) {
+    constexpr bool is_view = std::decay_t<G2>::is_view;
+    bool const receive     = (c.rank() == root || all);
+
+    // check the shape and block names of the input block GFs
+    EXPECTS(mpi::all_equal(detail::hash_names(bg_in), c));
+    // can we remove this check? shape should be equal if the block names are equal
+    if (not detail::have_mpi_equal_shape(bg_in, c))
+      TRIQS_RUNTIME_ERROR << "Error in triqs::gfs::mpi_reduce_capi: Shapes of input block GFs must be equal";
+
+    // assign (check) the block names of the output block GF (view) on receiving ranks
+    if (receive) {
+      if constexpr (is_view) {
+        EXPECTS(detail::hash_names(bg_in) == detail::hash_names(bg_out));
+      } else {
+        bg_out._block_names = bg_in.block_names();
+      }
+    }
+
+    // dummy GF for non-receiving ranks
+    auto g_dummy = typename std::decay_t<G2>::g_t::regular_type{};
+
+    // reduce each GF separately
+    if constexpr (G1::arity == 1) {
+      if (receive) detail::resize_or_check_if_view<is_view>(bg_out.data(), bg_in.size());
+      for (int i = 0; i < bg_in.size(); ++i) mpi_reduce_capi(bg_in.data()[i], receive ? bg_out.data()[i] : g_dummy, c, root, all, op);
+    } else {
+      if (receive) detail::resize_or_check_if_view<is_view>(bg_out.data(), bg_in.size1());
+      for (int i = 0; i < bg_in.size1(); ++i) {
+        if (receive) detail::resize_or_check_if_view<is_view>(bg_out.data()[i], bg_in.size2());
+        for (int j = 0; j < bg_in.size2(); ++j) mpi_reduce_capi(bg_in.data()[i][j], receive ? bg_out.data()[i][j] : g_dummy, c, root, all, op);
+      }
+    }
   }
 
   /**
@@ -70,9 +168,9 @@ namespace triqs::gfs {
    * @details The function in-place reduces input block GFs (views) from all processes in the given communicator and
    * makes the result available on the root process (`all == false`) or on all processes (`all == true`).
    *
-   * It simply calls `mpi::reduce_in_place` on the data of the block GF.
+   * It simply calls `mpi::reduce_in_place` on the data of the block GF, i.e. on vector (of vectors) of GF objects.
    *
-   * @note It does not check if the mesh or the block names are the same on all processes.
+   * The block GFs are expected to have the same block names on all processes.
    *
    * @tparam G Block GF type.
    * @param bg Block GF (view) to be reduced (into).
@@ -85,6 +183,7 @@ namespace triqs::gfs {
     requires(BlockGreenFunction_v<G>)
   void mpi_reduce_in_place(G &&bg, mpi::communicator c = {}, int root = 0, bool all = false, // NOLINT (temporary views are allowed)
                            MPI_Op op = MPI_SUM) {
+    EXPECTS(mpi::all_equal(detail::hash_names(bg), c));
     mpi::reduce_in_place(bg.data(), c, root, all, op);
   }
 
@@ -94,8 +193,11 @@ namespace triqs::gfs {
    * @details The function reduces input block GFs (views) from all processes in the given communicator and makes the
    * result available on the root process (`all == false`) or on all processes (`all == true`).
    *
-   * On receiving processes, the function returns a new block GF object with the reduced data. On non-receiving
-   * processes, it returns a default constructed block GF object.
+   * The block GFs are expected to have the same shape and block names on all processes.
+   *
+   * The content of the returned block GF depends on the MPI rank and whether it receives the data or not:
+   * - On receiving ranks, it contains the reduced GF objects and the same block names as the input GF.
+   * - On non-receiving ranks, a default constructed block GF is returned.
    *
    * @tparam G Block GF type.
    * @param bg Block GF (view) to be reduced (into).
@@ -108,29 +210,9 @@ namespace triqs::gfs {
   template <typename G>
     requires(BlockGreenFunction_v<G>)
   auto mpi_reduce(G const &bg, mpi::communicator c = {}, int root = 0, bool all = false, MPI_Op op = MPI_SUM) {
-    // reduce only the data
-    auto data = typename G::regular_type::data_t{};
-    if constexpr (G::is_view) {
-      // Why do we treat views and non-views differently?
-      // for views, reduce each GF separately
-      if (not detail::have_mpi_equal_shape(bg, c)) TRIQS_RUNTIME_ERROR << "Error in triqs::gfs::mpi_reduce: block_gf_view shapes are not equal.";
-      if constexpr (G::arity == 1) {
-        data.reserve(bg.size());
-        for (auto const &g : bg.data()) data.emplace_back(mpi::reduce(g, c, root, all, op));
-      } else {
-        data.resize(bg.size1());
-        for (int i = 0; i < bg.size1(); ++i) {
-          for (auto const &g : bg.data()[i]) data[i].emplace_back(mpi::reduce(g, c, root, all, op));
-        }
-      }
-    } else {
-      // for non-views, we can reduce the whole vector (of vectors) of GFs
-      data = mpi::reduce(bg.data(), c, root, all, op);
-    }
-
-    // create a new block GF with the reduced data (on receiving ranks)
-    if (c.rank() == root || all) return typename G::regular_type{bg.block_names(), data};
-    return typename G::regular_type{};
+    auto res = typename G::regular_type{};
+    mpi_reduce_capi(bg, res, c, root, all, op);
+    return res;
   }
 
   /**

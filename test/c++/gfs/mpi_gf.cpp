@@ -36,29 +36,31 @@ using namespace nda::clef;
 class TRIQSGF : public ::testing::Test {
   protected:
   using imfreq_cube_mesh_t = prod<imfreq, imfreq, imfreq>;
+  using gf1_t              = gf<imfreq>;
+  using gf2_t              = gf<imfreq_cube_mesh_t, tensor_valued<4>>;
   using block_gf1_t        = block_gf<imfreq>;
   using block_gf2_t        = block2_gf<imfreq_cube_mesh_t, tensor_valued<4>>;
 
   void SetUp() override {
     placeholder<0> w_;
     auto m = imfreq{beta, Fermion, Nfreq};
-    g1     = gf<imfreq>{m, {1, 1}};
+    g1     = gf1_t{m, {1, 1}};
     g1(w_) << 1 / (w_ + 1);
 
     placeholder<1> w1_;
     placeholder<2> w2_;
     placeholder<3> w3_;
     auto m3 = imfreq_cube_mesh_t{m, m, m};
-    g2      = gf<imfreq_cube_mesh_t, tensor_valued<4>>{m3, {2, 2, 2, 2}};
-    g2(w1_, w2_, w3_) << w1_ + w2_ + w3_;
+    g2      = gf2_t{m3, {2, 2, 2, 2}};
+    g2(w1_, w2_, w3_) << w1_ * w1_ * w1_ + w2_ * w2_ + w3_;
     bgf1 = make_block_gf(3, g1);
     bgf2 = make_block2_gf(2, 2, g2);
   }
 
   double beta = 10;
   int Nfreq   = 8;
-  gf<imfreq> g1;
-  gf<imfreq_cube_mesh_t, tensor_valued<4>> g2;
+  gf1_t g1;
+  gf2_t g2;
   block_gf1_t bgf1;
   block_gf2_t bgf2;
   mpi::communicator world;
@@ -67,10 +69,11 @@ class TRIQSGF : public ::testing::Test {
 // Check if two (block) Green's functions are close.
 template <typename G1, typename G2> void check_gfs(G1 const &g1, G2 const &g2, double eps = 1e-6) {
   if constexpr (BlockGreenFunction_v<G1>) {
-    if constexpr (G1::arity == 1)
+    if constexpr (G1::arity == 1) {
       EXPECT_BLOCK_GF_NEAR(g1, g2, eps);
-    else
+    } else {
       EXPECT_BLOCK2_GF_NEAR(g1, g2, eps);
+    }
   } else {
     EXPECT_GF_NEAR(g1, g2, eps);
   }
@@ -79,20 +82,34 @@ template <typename G1, typename G2> void check_gfs(G1 const &g1, G2 const &g2, d
 // Create empty (block) Green's function.
 template <typename G> G make_empty_gf(G const &g) {
   if constexpr (BlockGreenFunction_v<G>) {
-    auto g_tmp = typename G::g_t{(*g.begin()).mesh()};
+    auto g_tmp = typename G::g_t{(*g.begin()).mesh(), (*g.begin()).target_shape()};
     if constexpr (G::arity == 1)
       return G{g.size(), g_tmp};
     else
       return G{g.size1(), g.size2(), g_tmp};
   } else {
-    return G{g.mesh()};
+    return G{g.mesh(), g.target_shape()};
+  }
+}
+
+// Check if a (block) Green's function is empty.
+template <typename G> void check_empty_gf(G const &g) {
+  if constexpr (BlockGreenFunction_v<G>) {
+    if constexpr (G::arity == 1) {
+      EXPECT_EQ(g.size(), 0);
+    } else {
+      EXPECT_EQ(g.size1(), 0);
+    }
+    EXPECT_EQ(g.block_names().size(), 0);
+  } else {
+    EXPECT_EQ(g.data().size(), 0);
   }
 }
 
 // Test MPI broadcast.
 template <typename G> void test_bcast(G const &g, mpi::communicator world) {
   // broadcast
-  auto g_bcast = make_empty_gf(g);
+  auto g_bcast = G{};
   if (world.rank() == 0) g_bcast = g;
   mpi::broadcast(g_bcast, world);
   check_gfs(g_bcast, g, 1e-12);
@@ -100,15 +117,72 @@ template <typename G> void test_bcast(G const &g, mpi::communicator world) {
   // broadcast view
   g_bcast = g;
   if (world.rank() != 0) g_bcast *= 0;
-  mpi::broadcast(g_bcast, world);
+  mpi::broadcast(g_bcast(), world);
   check_gfs(g_bcast, g, 1e-12);
+}
+
+// Test MPI reduce and allreduce using the C-API.
+template <typename G> void test_reduce_capi(G const &g, mpi::communicator world) {
+  // reduce
+  auto g_red = G{};
+  mpi_reduce_capi(g, g_red, world);
+  if (world.rank() == 0) {
+    check_gfs(g_red, G{world.size() * g});
+  } else {
+    check_empty_gf(g_red);
+  }
+
+  // allreduce
+  g_red = G{};
+  mpi_reduce_capi(g, g_red, world, 0, true);
+  check_gfs(g_red, G{world.size() * g});
+
+  // allreduce const view
+  auto g_red_v = make_empty_gf(g);
+  mpi_reduce_capi(typename G::const_view_type{g}, g_red_v(), world, 0, true);
+  check_gfs(g_red_v, G{world.size() * g});
+}
+
+// Test in-place MPI reduce and allreduce.
+template <typename G> void test_reduce_in_place(G const &g, mpi::communicator world) {
+  // in-place reduce
+  auto g_red = g;
+  mpi::reduce_in_place(g_red, world);
+  if (world.rank() == 0) {
+    check_gfs(g_red, G{world.size() * g});
+  } else {
+    check_gfs(g_red, g);
+  }
+
+  // in-place allreduce
+  g_red = g;
+  mpi::all_reduce_in_place(g_red, world);
+  check_gfs(g_red, G{world.size() * g});
+
+  // in-place reduce view
+  g_red = g;
+  mpi::reduce_in_place(g_red(), world);
+  if (world.rank() == 0) {
+    check_gfs(g_red, G{world.size() * g});
+  } else {
+    check_gfs(g_red, g);
+  }
+
+  // in-place allreduce view
+  g_red = g;
+  mpi::all_reduce_in_place(g_red(), world);
+  check_gfs(g_red, G{world.size() * g});
 }
 
 // Test MPI reduce and allreduce.
 template <typename G> void test_reduce(G const &g, mpi::communicator world) {
   // reduce
   auto g_red = mpi::reduce(g, world);
-  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
+  if (world.rank() == 0) {
+    check_gfs(g_red, G{world.size() * g});
+  } else {
+    check_empty_gf(g_red);
+  }
 
   // allreduce
   auto g_red_all = mpi::all_reduce(g, world);
@@ -123,34 +197,15 @@ template <typename G> void test_reduce(G const &g, mpi::communicator world) {
   check_gfs(g_red_cv, G{world.size() * g});
 }
 
-// Test in-place MPI reduce and allreduce.
-template <typename G> void test_reduce_in_place(G const &g, mpi::communicator world) {
-  // in-place reduce
-  auto g_red = g;
-  mpi::reduce_in_place(g_red, world);
-  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
-
-  // in-place allreduce
-  g_red = g;
-  mpi::all_reduce_in_place(g_red, world);
-  check_gfs(g_red, G{world.size() * g});
-
-  // in-place reduce view
-  g_red = g;
-  mpi::reduce_in_place(g_red(), world);
-  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
-
-  // in-place allreduce view
-  g_red = g;
-  mpi::all_reduce_in_place(g_red(), world);
-  check_gfs(g_red, G{world.size() * g});
-}
-
 // Test MPI reduce and allreduce.
 template <typename G> void test_lazy_reduce(G const &g, mpi::communicator world) {
   // lazy reduce
   G g_red = triqs::gfs::lazy_mpi_reduce(g, world);
-  if (world.rank() == 0) check_gfs(g_red, G{world.size() * g});
+  if (world.rank() == 0) {
+    check_gfs(g_red, G{world.size() * g});
+  } else {
+    check_empty_gf(g_red);
+  }
 
   // lazy in-place allreduce
   auto g_red_all = g;
@@ -172,14 +227,19 @@ TEST_F(TRIQSGF, BroadcastGF) {
   test_bcast(g2, world);
 }
 
-TEST_F(TRIQSGF, ReduceGF) {
-  test_reduce(g1, world);
-  test_reduce(g2, world);
+TEST_F(TRIQSGF, ReduceCapiGF) {
+  test_reduce_capi(g1, world);
+  test_reduce_capi(g2, world);
 }
 
 TEST_F(TRIQSGF, ReduceGFInPlace) {
   test_reduce_in_place(g1, world);
   test_reduce_in_place(g2, world);
+}
+
+TEST_F(TRIQSGF, ReduceGF) {
+  test_reduce(g1, world);
+  test_reduce(g2, world);
 }
 
 TEST_F(TRIQSGF, LazyReduceGF) {
@@ -192,14 +252,19 @@ TEST_F(TRIQSGF, BroadcastBlockGF) {
   test_bcast(bgf2, world);
 }
 
-TEST_F(TRIQSGF, ReduceBlockGF) {
-  test_reduce(bgf1, world);
-  test_reduce(bgf2, world);
+TEST_F(TRIQSGF, ReduceCapiBlockGF) {
+  test_reduce_capi(bgf1, world);
+  test_reduce_capi(bgf2, world);
 }
 
 TEST_F(TRIQSGF, ReduceBlockGFInPlace) {
   test_reduce_in_place(bgf1, world);
   test_reduce_in_place(bgf2, world);
+}
+
+TEST_F(TRIQSGF, ReduceBlockGF) {
+  test_reduce(bgf1, world);
+  test_reduce(bgf2, world);
 }
 
 TEST_F(TRIQSGF, LazyReduceBlockGF) {

@@ -19,6 +19,9 @@
 #include "./defs.hpp"
 #include "./targets.hpp"
 
+#include <mpi/mpi.hpp>
+#include <nda/nda.hpp>
+
 namespace triqs::gfs {
 
   /*------------------------------------------------------------------------
@@ -82,6 +85,8 @@ namespace triqs::gfs {
 
   // Forward declaration.
   template <MemoryGf G> void mpi_broadcast(G &&, mpi::communicator c = {}, int root = 0);
+  template <MemoryGf G1, MemoryGf G2>
+  void mpi_reduce_capi(G1 const &, G2 &&, mpi::communicator c = {}, int root = 0, bool all = false, MPI_Op op = MPI_SUM);
 
   // ----------------------  gf -----------------------------------------
   /**
@@ -346,10 +351,15 @@ namespace triqs::gfs {
     /**
      * @brief Assignment operator overload for `mpi::lazy` objects.
      *
-     * @details It assigns the mesh from the GF stored in the lazy object and reduces its data into the data of `this`
-     * object. The meshes are expected to be the same on all processes.
+     * @details The assignment depends on the MPI rank and whether it receives the data or not:
+     * - On receiving ranks, it assigns the reduced data and the mesh from the GF in the lazy object.
+     * - On non-receiving ranks, it assigns an empty data array and a default constructed mesh, i.e. a default
+     * construced GF.
      *
-     * The reduction is performed in-place if the lhs and rhs data point to the same memory location, e.g.
+     * The GFs in the lazy objects are expected to have the same mesh on all processes.
+     *
+     * The reduction is performed in-place if the data of the left hand side and right hand side operand point to the
+     * same memory location, e.g.
      *
      * @code{.cpp}
      * g = triqs::gfs::lazy_mpi_reduce(g);
@@ -360,10 +370,18 @@ namespace triqs::gfs {
      */
     gf &operator=(mpi::lazy<mpi::tag::reduce, gf_const_view<M, Target>> l) {
       EXPECTS(mpi::all_equal(l.rhs.mesh().mesh_hash(), l.c));
-      _mesh = l.rhs.mesh();
       _data = nda::lazy_mpi_reduce(l.rhs.data(), l.c, l.root, l.all, l.op);
+      if (l.all || l.c.rank() == l.root) {
+        _mesh = l.rhs.mesh();
+      } else {
+        *this = mesh_t{};
+      }
       return *this;
     }
+
+    // Friend declaration.
+    template <MemoryGf G> friend void mpi_broadcast(G &&, mpi::communicator, int root);
+    template <MemoryGf G1, MemoryGf G2> friend void mpi_reduce_capi(G1 const &, G2 &&, mpi::communicator, int, bool, MPI_Op);
 
     // Common code for gf, gf_view, gf_const_view
 #include "./_gf_view_common.hpp"

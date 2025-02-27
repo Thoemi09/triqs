@@ -152,25 +152,14 @@ namespace triqs::gfs {
     /**
      * @brief Assignment operator overload for `mpi::lazy` objects.
      *
-     * @details It simply calls `mpi::reduce` on each Green's function stored in the lazy object separately and assigns
-     * the result to the corresponding Green's function in `this` object.
+     * @details It simply calls `mpi::reduce` on the block GF stored in the lazy object and assigns the result to `this`
+     * object.
      *
      * @param l `mpi::lazy` object returned by triqs::gfs::lazy_mpi_reduce.
      * @return Reference to `this` object.
      */
-    block_gf_view &operator=(mpi::lazy<mpi::tag::reduce, const_view_type> l)
-      requires(not IsConst)
-    {
-      if constexpr (Arity == 1) {
-        if (l.rhs.size() != this->size()) TRIQS_RUNTIME_ERROR << "Error in block_gf_view::operator=: Incompatible sizes";
-        for (int i = 0; i < size(); ++i) _glist[i] = triqs::gfs::lazy_mpi_reduce(l.rhs.data()[i], l.c, l.root, l.all, l.op);
-      } else {
-        if (l.rhs.size1() != this->size1() || l.rhs.size2() != this->size2())
-          TRIQS_RUNTIME_ERROR << "Error in block_gf_view::operator=: Incompatible sizes";
-        for (int i = 0; i < size1(); ++i)
-          for (int j = 0; j < size2(); ++j) _glist[i][j] = triqs::gfs::lazy_mpi_reduce(l.rhs.data()[i][j], l.c, l.root, l.all, l.op);
-      }
-      _block_names = l.rhs.block_names();
+    block_gf_view &operator=(mpi::lazy<mpi::tag::reduce, const_view_type> l) {
+      *this = mpi::reduce(l.rhs, l.c, l.root, l.all, l.op);
       return *this;
     }
 
